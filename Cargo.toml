@@ -1,0 +1,26 @@
+[package]
+categories = ["database-driver"]
+description = "A collection of db drivers for the lunatic runtime"
+edition = "2021"
+keywords = ["database", "db", "mysql", "postgres", "redis"]
+license = "Apache-2.0/MIT"
+name = "lunatic-db"
+readme = "Readme.md"
+repository = "https://github.com/lunatic-solutions/submillisecond"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+mysql = {path = "mysql"}
+
+[workspace]
+members = ["mysql"]
+
+[profile.bench]
+debug = true
+
+[dev-dependencies]
+lunatic = {version = "0.10.2"}
+lunatic-db = {path = "."}
+serde = {version = "1.0.132", features = ["derive"]}
