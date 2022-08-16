@@ -13,14 +13,15 @@ version = "0.1.0"
 
 [dependencies]
 mysql = {path = "mysql"}
+redis = {path = "redis"}
 
 [workspace]
-members = ["mysql"]
+members = ["mysql", "redis"]
 
 [profile.bench]
 debug = true
 
 [dev-dependencies]
-lunatic = {version = "0.10.2"}
+lunatic = {path = "../rust-lib"}
 lunatic-db = {path = "."}
 serde = {version = "1.0.132", features = ["derive"]}

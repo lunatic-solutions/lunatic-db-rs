@@ -1184,7 +1184,7 @@ mod test {
         use std::{
             collections::HashMap,
             io::Write,
-            iter, process,
+            iter,
             sync::mpsc::{channel, sync_channel},
             thread::spawn,
             time::Duration,
