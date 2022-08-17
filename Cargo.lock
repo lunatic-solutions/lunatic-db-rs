@@ -1128,25 +1128,11 @@ dependencies = [
 
 [[package]]
 name = "lunatic"
-version = "0.10.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad43811f85a1cef61b7c5b0ccc9d5240d194f3fa72034596108d605b88113d6a"
-dependencies = [
- "bincode",
- "lunatic-macros 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "lunatic-test 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "paste",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "lunatic"
 version = "0.10.6"
 dependencies = [
  "bincode",
- "lunatic-macros 0.10.1",
- "lunatic-test 0.10.1",
+ "lunatic-macros",
+ "lunatic-test",
  "paste",
  "serde",
  "thiserror",
@@ -1156,7 +1142,7 @@ dependencies = [
 name = "lunatic-db"
 version = "0.1.0"
 dependencies = [
- "lunatic 0.10.6",
+ "lunatic",
  "lunatic-db",
  "mysql",
  "redis",
@@ -1174,30 +1160,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "lunatic-macros"
-version = "0.10.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3582d2d733790f704f1a537f8f80d531c2d42d9717ef3c64e3acedb309115d51"
-dependencies = [
- "convert_case",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "lunatic-test"
 version = "0.10.1"
-dependencies = [
- "quote",
- "syn",
-]
-
-[[package]]
-name = "lunatic-test"
-version = "0.10.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1ed5beab4ac9e9b0ba97b7139de06ca173bb21718141152c0133b46d4100665"
 dependencies = [
  "quote",
  "syn",
@@ -1263,7 +1227,7 @@ dependencies = [
  "io-enum",
  "lazy_static",
  "lru",
- "lunatic 0.10.5",
+ "lunatic",
  "mysql_common",
  "once_cell",
  "pem",
@@ -1708,7 +1672,7 @@ dependencies = [
  "futures",
  "futures-util",
  "itoa 1.0.3",
- "lunatic 0.10.6",
+ "lunatic",
  "native-tls",
  "partial-io",
  "percent-encoding",
