@@ -1,6 +1,7 @@
-extern crate redis;
-use lunatic::{spawn_link, Mailbox};
-use redis::Commands;
+use std::time::Duration;
+
+use lunatic::{sleep, spawn_link, Mailbox};
+use lunatic_db::redis::{self, Commands};
 
 fn fetch_an_integer() -> redis::RedisResult<isize> {
     // connect to redis
@@ -22,7 +23,18 @@ fn push_queue(value: u32) -> redis::RedisResult<isize> {
     con.rpush("my_queue", value)
 }
 
-fn poll_value() -> redis::RedisResult<isize> {
+fn push_queue_timeout(timeout: Duration, value: u32) -> redis::RedisResult<isize> {
+    // connect to redis
+    println!("Starting timeout");
+    sleep(timeout);
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let mut con = client.get_connection()?;
+    println!("Pushing {} to queue", value);
+    // throw away the result, just make sure it does not fail
+    con.rpush("my_queue", value)
+}
+
+fn poll_value() -> redis::RedisResult<(String, isize)> {
     // connect to redis
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
@@ -32,7 +44,6 @@ fn poll_value() -> redis::RedisResult<isize> {
 
 #[lunatic::main]
 fn main(_: Mailbox<()>) {
-    println!("MAIN");
     let proc = spawn_link!(@task
         || {
             fetch_an_integer()
@@ -47,4 +58,10 @@ fn main(_: Mailbox<()>) {
     // push the pop
     println!("PUSHING INTO QUEUE {:?}", push_queue(55));
     println!("POLLING 55 {:?}", poll_value());
+
+    // poll before pushing the value
+    spawn_link!(|| {
+        let _ = push_queue_timeout(Duration::from_secs(1), 101);
+    });
+    println!("POLLING LATE VALUE {:?}", poll_value());
 }

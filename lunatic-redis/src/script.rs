@@ -139,50 +139,10 @@ impl<'a> ScriptInvocation<'a> {
         }
     }
 
-    /// Asynchronously invokes the script and returns the result.
-    #[inline]
-    #[cfg(feature = "aio")]
-    pub async fn invoke_async<C, T>(&self, con: &mut C) -> RedisResult<T>
-    where
-        C: crate::aio::ConnectionLike,
-        T: FromRedisValue,
-    {
-        let eval_cmd = self.eval_cmd();
-        match eval_cmd.query_async(con).await {
-            Ok(val) => {
-                // Return the value from the script evaluation
-                Ok(val)
-            }
-            Err(err) => {
-                // Load the script into Redis if the script hash wasn't there already
-                if err.kind() == ErrorKind::NoScriptError {
-                    self.load_cmd().query_async(con).await?;
-                    eval_cmd.query_async(con).await
-                } else {
-                    Err(err)
-                }
-            }
-        }
-    }
-
     /// Loads the script and returns the SHA1 of it.
     #[inline]
     pub fn load(&self, con: &mut dyn ConnectionLike) -> RedisResult<String> {
         let hash: String = self.load_cmd().query(con)?;
-
-        debug_assert_eq!(hash, self.script.hash);
-
-        Ok(hash)
-    }
-
-    /// Asynchronously loads the script and returns the SHA1 of it.
-    #[inline]
-    #[cfg(feature = "aio")]
-    pub async fn load_async<C>(&self, con: &mut C) -> RedisResult<String>
-    where
-        C: crate::aio::ConnectionLike,
-    {
-        let hash: String = self.load_cmd().query_async(con).await?;
 
         debug_assert_eq!(hash, self.script.hash);
 

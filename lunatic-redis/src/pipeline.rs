@@ -75,11 +75,6 @@ impl Pipeline {
         encode_pipeline(&self.commands, self.transaction_mode)
     }
 
-    #[cfg(feature = "aio")]
-    pub(crate) fn write_packed_pipeline(&self, out: &mut Vec<u8>) {
-        write_pipeline(out, &self.commands, self.transaction_mode)
-    }
-
     fn execute_pipelined(&self, con: &mut dyn ConnectionLike) -> RedisResult<Value> {
         Ok(self.make_pipeline_results(con.req_packed_commands(
             &encode_pipeline(&self.commands, false),
@@ -138,53 +133,6 @@ impl Pipeline {
                 self.execute_pipelined(con)?
             }),
         )
-    }
-
-    #[cfg(feature = "aio")]
-    async fn execute_pipelined_async<C>(&self, con: &mut C) -> RedisResult<Value>
-    where
-        C: crate::aio::ConnectionLike,
-    {
-        let value = con
-            .req_packed_commands(self, 0, self.commands.len())
-            .await?;
-        Ok(self.make_pipeline_results(value))
-    }
-
-    #[cfg(feature = "aio")]
-    async fn execute_transaction_async<C>(&self, con: &mut C) -> RedisResult<Value>
-    where
-        C: crate::aio::ConnectionLike,
-    {
-        let mut resp = con
-            .req_packed_commands(self, self.commands.len() + 1, 1)
-            .await?;
-        match resp.pop() {
-            Some(Value::Nil) => Ok(Value::Nil),
-            Some(Value::Bulk(items)) => Ok(self.make_pipeline_results(items)),
-            _ => Err((
-                ErrorKind::ResponseError,
-                "Invalid response when parsing multi response",
-            )
-                .into()),
-        }
-    }
-
-    /// Async version of `query`.
-    #[inline]
-    #[cfg(feature = "aio")]
-    pub async fn query_async<C, T: FromRedisValue>(&self, con: &mut C) -> RedisResult<T>
-    where
-        C: crate::aio::ConnectionLike,
-    {
-        let v = if self.commands.is_empty() {
-            return from_redis_value(&Value::Bulk(vec![]));
-        } else if self.transaction_mode {
-            self.execute_transaction_async(con).await?
-        } else {
-            self.execute_pipelined_async(con).await?
-        };
-        from_redis_value(&v)
     }
 
     /// This is a shortcut to `query()` that does not return a value and

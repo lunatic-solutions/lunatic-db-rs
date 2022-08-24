@@ -849,10 +849,6 @@ pub fn make_extension_error(code: &str, detail: Option<&str>) -> RedisError {
 /// Library generic result type.
 pub type RedisResult<T> = Result<T, RedisError>;
 
-/// Library generic future type.
-#[cfg(feature = "aio")]
-pub type RedisFuture<'a, T> = futures_util::future::BoxFuture<'a, RedisResult<T>>;
-
 /// An info dictionary type.
 #[derive(Debug)]
 pub struct InfoDict {

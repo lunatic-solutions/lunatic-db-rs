@@ -1,12 +1,12 @@
 [package]
-description = "Redis driver for Rust."
+description = "Redis driver for the lunatic runtime."
 documentation = "https://docs.rs/redis"
 edition = "2018"
-homepage = "https://github.com/redis-rs/redis-rs"
+homepage = "https://github.com/lunatic/lunatic-db/lunatic-redis"
 keywords = ["redis", "database"]
 license = "BSD-3-Clause"
-name = "redis"
-repository = "https://github.com/redis-rs/redis-rs"
+name = "lunatic-redis"
+repository = "https://github.com/lunatic/lunatic-db/lunatic-redis"
 rust-version = "1.57"
 version = "0.21.5"
 
@@ -36,16 +36,8 @@ sha1_smol = {version = "1.0", optional = true}
 
 combine = {version = "4.6", default-features = false, features = ["std"]}
 
-# Only needed for AIO
-bytes = {version = "1", optional = true}
-futures-util = {version = "0.3.15", default-features = false, optional = true}
-pin-project-lite = {version = "0.2", optional = true}
-tokio = {version = "1", features = ["rt", "net"], optional = true}
-tokio-util = {version = "0.7", optional = true}
-
 # Only needed for the connection manager
 arc-swap = {version = "1.1.0", optional = true}
-futures = {version = "0.3.3", optional = true}
 
 # Only needed for the r2d2 feature
 r2d2 = {version = "0.8.8", optional = true}
@@ -53,9 +45,6 @@ r2d2 = {version = "0.8.8", optional = true}
 # Only needed for cluster
 crc16 = {version = "0.4", optional = true}
 rand = {version = "0.8", optional = true}
-# Only needed for async_std support
-async-std = {version = "1.8.0", optional = true}
-async-trait = {version = "0.1.24", optional = true}
 
 # Only needed for TLS
 async-native-tls = {version = "0.4", optional = true}
@@ -67,42 +56,25 @@ ahash = {version = "0.7.6", optional = true}
 
 [features]
 acl = []
-aio = [
-  "bytes",
-  "pin-project-lite",
-  "futures-util",
-  "futures-util/alloc",
-  "futures-util/sink",
-  "tokio/io-util",
-  "tokio-util",
-  "tokio-util/codec",
-  "tokio/sync",
-  "combine/tokio",
-  "async-trait",
-]
-async-std-comp = ["aio", "async-std"]
-async-std-tls-comp = ["async-std-comp", "async-native-tls", "tls"]
 cluster = ["crc16", "rand"]
-connection-manager = ["arc-swap", "futures", "aio"]
+connection-manager = ["arc-swap"]
 default = ["acl", "streams", "geospatial", "script"]
 geospatial = []
 script = ["sha1_smol"]
 streams = []
 tls = ["native-tls"]
-tokio-comp = ["aio", "tokio", "tokio/net"]
-tokio-native-tls-comp = ["tls", "tokio-native-tls"]
 
 [dev-dependencies]
 assert_approx_eq = "1.0"
 criterion = "0.3"
 fnv = "1.0.5"
-futures = "0.3"
-partial-io = {version = "0.5", features = ["tokio", "quickcheck1"]}
+lunatic = {path = "../../rust-lib"}
+lunatic-db = {path = "../"}
 quickcheck = "1.0.3"
 rand = "0.8"
+serde = {version = "1.0.132", features = ["derive"]}
 socket2 = "0.4"
 tempfile = "3.2"
-tokio = {version = "1", features = ["rt", "macros", "rt-multi-thread", "time"]}
 
 [[test]]
 name = "test_async"
@@ -129,26 +101,25 @@ harness = false
 name = "bench_cluster"
 required-features = ["cluster"]
 
-[[example]]
-name = "async-multiplexed"
-required-features = ["tokio-comp"]
+# [[example]]
+# name = "async-multiplexed"
+# required-features = ["tokio-comp"]
 
-[[example]]
-name = "async-await"
-required-features = ["aio"]
+# [[example]]
+# name = "async-await"
+# required-features = []
 
-[[example]]
-name = "async-pub-sub"
-required-features = ["aio"]
+# [[example]]
+# name = "async-pub-sub"
+# required-features = []
 
-[[example]]
-name = "async-scan"
-required-features = ["aio"]
+# [[example]]
+# name = "async-scan"
 
-[[example]]
-name = "async-connection-loss"
-required-features = ["connection-manager"]
+# [[example]]
+# name = "async-connection-loss"
+# required-features = ["connection-manager"]
 
-[[example]]
-name = "streams"
-required-features = ["streams"]
+# [[example]]
+# name = "streams"
+# required-features = ["streams"]

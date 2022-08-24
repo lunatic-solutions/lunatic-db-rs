@@ -1,10 +1,3 @@
-#[cfg(feature = "aio")]
-use futures_util::{
-    task::{Context, Poll},
-    FutureExt, Stream,
-};
-#[cfg(feature = "aio")]
-use std::pin::Pin;
 use std::{fmt, io};
 
 use crate::connection::ConnectionLike;
@@ -64,74 +57,6 @@ impl<'a, T: FromRedisValue> Iterator for Iter<'a, T> {
             self.cursor = cur;
             self.batch = batch.into_iter();
         }
-    }
-}
-
-#[cfg(feature = "aio")]
-use crate::aio::ConnectionLike as AsyncConnection;
-
-/// Represents a redis iterator that can be used with async connections.
-#[cfg(feature = "aio")]
-pub struct AsyncIter<'a, T: FromRedisValue + 'a> {
-    batch: std::vec::IntoIter<T>,
-    con: &'a mut (dyn AsyncConnection + Send + 'a),
-    cmd: Cmd,
-}
-
-#[cfg(feature = "aio")]
-impl<'a, T: FromRedisValue + 'a> AsyncIter<'a, T> {
-    /// ```rust,no_run
-    /// # use redis::AsyncCommands;
-    /// # async fn scan_set() -> redis::RedisResult<()> {
-    /// # let client = redis::Client::open("redis://127.0.0.1/")?;
-    /// # let mut con = client.get_async_connection().await?;
-    /// con.sadd("my_set", 42i32).await?;
-    /// con.sadd("my_set", 43i32).await?;
-    /// let mut iter: redis::AsyncIter<i32> = con.sscan("my_set").await?;
-    /// while let Some(element) = iter.next_item().await {
-    ///     assert!(element == 42 || element == 43);
-    /// }
-    /// # Ok(())
-    /// # }
-    /// ```
-    #[inline]
-    pub async fn next_item(&mut self) -> Option<T> {
-        // we need to do this in a loop until we produce at least one item
-        // or we find the actual end of the iteration.  This is necessary
-        // because with filtering an iterator it is possible that a whole
-        // chunk is not matching the pattern and thus yielding empty results.
-        loop {
-            if let Some(v) = self.batch.next() {
-                return Some(v);
-            };
-            if let Some(cursor) = self.cmd.cursor {
-                if cursor == 0 {
-                    return None;
-                }
-            } else {
-                return None;
-            }
-
-            let rv = unwrap_or!(
-                self.con.req_packed_command(&self.cmd).await.ok(),
-                return None
-            );
-            let (cur, batch): (u64, Vec<T>) = unwrap_or!(from_redis_value(&rv).ok(), return None);
-
-            self.cmd.cursor = Some(cur);
-            self.batch = batch.into_iter();
-        }
-    }
-}
-
-#[cfg(feature = "aio")]
-impl<'a, T: FromRedisValue + Unpin + 'a> Stream for AsyncIter<'a, T> {
-    type Item = T;
-
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<T>> {
-        let this = self.get_mut();
-        let mut future = Box::pin(this.next_item());
-        future.poll_unpin(cx)
     }
 }
 
@@ -371,17 +296,6 @@ impl Cmd {
         }
     }
 
-    /// Async version of `query`.
-    #[inline]
-    #[cfg(feature = "aio")]
-    pub async fn query_async<C, T: FromRedisValue>(&self, con: &mut C) -> RedisResult<T>
-    where
-        C: crate::aio::ConnectionLike,
-    {
-        let val = con.req_packed_command(self).await?;
-        from_redis_value(&val)
-    }
-
     /// Similar to `query()` but returns an iterator over the items of the
     /// bulk result or iterator.  In normal mode this is not in any way more
     /// efficient than just querying into a `Vec<T>` as it's internally
@@ -409,47 +323,6 @@ impl Cmd {
         Ok(Iter {
             batch: batch.into_iter(),
             cursor,
-            con,
-            cmd: self,
-        })
-    }
-
-    /// Similar to `iter()` but returns an AsyncIter over the items of the
-    /// bulk result or iterator.  A [futures::Stream](https://docs.rs/futures/0.3.3/futures/stream/trait.Stream.html)
-    /// can be obtained by calling `stream()` on the AsyncIter.  In normal mode this is not in any way more
-    /// efficient than just querying into a `Vec<T>` as it's internally
-    /// implemented as buffering into a vector.  This however is useful when
-    /// `cursor_arg` was used in which case the stream will query for more
-    /// items until the server side cursor is exhausted.
-    ///
-    /// This is useful for commands such as `SSCAN`, `SCAN` and others in async contexts.
-    ///
-    /// One speciality of this function is that it will check if the response
-    /// looks like a cursor or not and always just looks at the payload.
-    /// This way you can use the function the same for responses in the
-    /// format of `KEYS` (just a list) as well as `SSCAN` (which returns a
-    /// tuple of cursor and list).
-    #[cfg(feature = "aio")]
-    #[inline]
-    pub async fn iter_async<'a, T: FromRedisValue + 'a>(
-        mut self,
-        con: &'a mut (dyn AsyncConnection + Send),
-    ) -> RedisResult<AsyncIter<'a, T>> {
-        let rv = con.req_packed_command(&self).await?;
-
-        let (cursor, batch) = if rv.looks_like_cursor() {
-            from_redis_value::<(u64, Vec<T>)>(&rv)?
-        } else {
-            (0, from_redis_value(&rv)?)
-        };
-        if cursor == 0 {
-            self.cursor = None;
-        } else {
-            self.cursor = Some(cursor);
-        }
-
-        Ok(AsyncIter {
-            batch: batch.into_iter(),
             con,
             cmd: self,
         })

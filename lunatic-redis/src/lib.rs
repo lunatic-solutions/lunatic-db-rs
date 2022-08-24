@@ -400,22 +400,12 @@ pub use crate::types::{
     Value,
 };
 
-#[cfg(feature = "aio")]
-#[cfg_attr(docsrs, doc(cfg(feature = "aio")))]
-pub use crate::{
-    cmd::AsyncIter, commands::AsyncCommands, parser::parse_redis_value_async, types::RedisFuture,
-};
-
 mod macros;
 mod pipeline;
 
 #[cfg(feature = "acl")]
 #[cfg_attr(docsrs, doc(cfg(feature = "acl")))]
 pub mod acl;
-
-#[cfg(feature = "aio")]
-#[cfg_attr(docsrs, doc(cfg(feature = "aio")))]
-pub mod aio;
 
 #[cfg(feature = "geospatial")]
 #[cfg_attr(docsrs, doc(cfg(feature = "geospatial")))]

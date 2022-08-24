@@ -1909,9 +1909,6 @@ pub trait PubSubCommands: Sized {
 
 impl<T> Commands for T where T: ConnectionLike {}
 
-#[cfg(feature = "aio")]
-impl<T> AsyncCommands for T where T: crate::aio::ConnectionLike + Send + Sized {}
-
 impl PubSubCommands for Connection {
     fn subscribe<C, F, U>(&mut self, channels: C, mut func: F) -> RedisResult<U>
     where

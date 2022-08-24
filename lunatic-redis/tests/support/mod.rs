@@ -5,33 +5,9 @@ use std::{
     time::Duration,
 };
 
-use futures::Future;
 use redis::Value;
 use socket2::{Domain, Socket, Type};
 use tempfile::TempDir;
-
-pub fn current_thread_runtime() -> tokio::runtime::Runtime {
-    let mut builder = tokio::runtime::Builder::new_current_thread();
-
-    #[cfg(feature = "aio")]
-    builder.enable_io();
-
-    builder.build().unwrap()
-}
-
-pub fn block_on_all<F>(f: F) -> F::Output
-where
-    F: Future,
-{
-    current_thread_runtime().block_on(f)
-}
-#[cfg(feature = "async-std-comp")]
-pub fn block_on_all_using_async_std<F>(f: F) -> F::Output
-where
-    F: Future,
-{
-    async_std::task::block_on(f)
-}
 
 #[cfg(feature = "cluster")]
 mod cluster;
@@ -255,28 +231,6 @@ impl TestContext {
 
     pub fn stop_server(&mut self) {
         self.server.stop();
-    }
-
-    #[cfg(feature = "tokio-comp")]
-    pub fn multiplexed_async_connection(
-        &self,
-    ) -> impl Future<Output = redis::RedisResult<redis::aio::MultiplexedConnection>> {
-        self.multiplexed_async_connection_tokio()
-    }
-
-    #[cfg(feature = "tokio-comp")]
-    pub fn multiplexed_async_connection_tokio(
-        &self,
-    ) -> impl Future<Output = redis::RedisResult<redis::aio::MultiplexedConnection>> {
-        let client = self.client.clone();
-        async move { client.get_multiplexed_tokio_connection().await }
-    }
-    #[cfg(feature = "async-std-comp")]
-    pub fn multiplexed_async_connection_async_std(
-        &self,
-    ) -> impl Future<Output = redis::RedisResult<redis::aio::MultiplexedConnection>> {
-        let client = self.client.clone();
-        async move { client.get_multiplexed_async_std_connection().await }
     }
 }
 

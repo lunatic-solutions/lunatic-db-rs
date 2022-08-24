@@ -12,11 +12,11 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+lunatic-redis = {path = "lunatic-redis"}
 mysql = {path = "mysql"}
-redis = {path = "redis"}
 
 [workspace]
-members = ["mysql", "redis"]
+members = ["mysql", "lunatic-redis"]
 
 [profile.bench]
 debug = true
@@ -25,3 +25,15 @@ debug = true
 lunatic = {path = "../rust-lib"}
 lunatic-db = {path = "."}
 serde = {version = "1.0.132", features = ["derive"]}
+
+[[example]]
+name = "redis-queues"
+path = "lunatic-redis/examples/queues.rs"
+
+[[example]]
+name = "redis-set-mget"
+path = "lunatic-redis/examples/set-mget.rs"
+
+[[example]]
+name = "redis-pub-sub"
+path = "lunatic-redis/examples/pub-sub.rs"
