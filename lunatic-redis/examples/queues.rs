@@ -34,7 +34,7 @@ fn push_queue_timeout(timeout: Duration, value: u32) -> redis::RedisResult<isize
     con.rpush("my_queue", value)
 }
 
-fn poll_value() -> redis::RedisResult<(String, isize)> {
+fn poll_value() -> redis::RedisResult<(String, u32)> {
     // connect to redis
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
@@ -64,4 +64,12 @@ fn main(_: Mailbox<()>) {
         let _ = push_queue_timeout(Duration::from_secs(1), 101);
     });
     println!("POLLING LATE VALUE {:?}", poll_value());
+
+    // push a bunch of data
+    for i in 1..100 {
+        push_queue(i).unwrap();
+        let (_, polled) = poll_value().unwrap();
+        assert_eq!(i, polled);
+    }
+    println!("Pushed+Polled 100 values");
 }

@@ -36,6 +36,10 @@ name = "redis-queues"
 path = "lunatic-redis/examples/queues.rs"
 
 [[example]]
+name = "redis-basic"
+path = "lunatic-redis/examples/basic.rs"
+
+[[example]]
 name = "redis-set-mget"
 path = "lunatic-redis/examples/set-mget.rs"
 

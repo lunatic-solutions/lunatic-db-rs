@@ -5,7 +5,6 @@ use std::{
     time::Duration,
 };
 
-use lunatic::net::TcpStream;
 use lunatic_redis::Value;
 use tempfile::TempDir;
 
@@ -49,15 +48,8 @@ impl RedisServer {
         let server_type = ServerType::get_intended();
         let addr = match server_type {
             ServerType::Tcp { tls } => {
-                // this is technically a race but we can't do better with
-                // the tools that redis gives us :(
                 let addr = &"127.0.0.1:0".parse::<SocketAddr>().unwrap();
-                // let socket = TcpStream::connect(Domain::IPV4, Type::STREAM, None).unwrap();
-                // socket.set_reuse_address(true).unwrap();
-                // socket.bind(addr).unwrap();
-                // socket.listen(1).unwrap();
-                let listener = TcpListener::bind(addr);
-                // let redis_port = listener.local_addr().unwrap().port();
+                let _listener = TcpListener::bind(addr);
                 let redis_port = 0;
                 if tls {
                     lunatic_redis::ConnectionAddr::TcpTls {

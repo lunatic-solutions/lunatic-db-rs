@@ -2,9 +2,8 @@ extern crate lunatic_db;
 
 use std::time::Duration;
 
-use lunatic::{process::ProcessRef, Mailbox, Process};
+use lunatic::{sleep, Mailbox};
 use lunatic_db::redis::{self, Commands};
-use redis::RedisPubSub;
 
 #[lunatic::main]
 fn main(_: Mailbox<()>) {
@@ -28,11 +27,52 @@ fn main(_: Mailbox<()>) {
     publish_conn
         .publish::<&str, &str, ()>("wavephone", "banana")
         .unwrap();
-}
 
-// process that handles messages from different topics
-struct Chat {
-    reader: Process<()>,
-    pubsub: RedisPubSub,
-    this: ProcessRef<Chat>,
+    // create hello channel first
+    publish_conn
+        .publish::<&str, &str, ()>("hello", "init")
+        .unwrap();
+
+    publish_conn
+        .publish::<&str, &str, ()>("hallo", "init")
+        .unwrap();
+
+    publish_conn
+        .publish::<&str, &str, ()>("world", "init")
+        .unwrap();
+
+    publish_conn
+        .publish::<&str, &str, ()>("wörld", "init")
+        .unwrap();
+
+    // do some pattern subscription
+    let _sub = lunatic::spawn_link!(|| {
+        let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+        let mut subscribe_conn = client.get_connection().unwrap().as_pubsub();
+        subscribe_conn.psubscribe("hello").unwrap();
+        subscribe_conn.psubscribe("w*rld").unwrap();
+        println!("SUBBED TO TOPICS");
+
+        loop {
+            let pubsub_msg = subscribe_conn.receive();
+            println!("[subscriber] GOT PMESSAGE {:?}", pubsub_msg);
+        }
+    });
+
+    sleep(Duration::from_secs(1));
+    // publish to pattern
+    publish_conn
+        .publish::<&str, &str, ()>("hello", "first")
+        .unwrap();
+    publish_conn
+        .publish::<&str, &str, ()>("world", "second")
+        .unwrap();
+    publish_conn
+        .publish::<&str, &str, ()>("hello", "third")
+        .unwrap();
+    publish_conn
+        .publish::<&str, &str, ()>("wörld", "fourth")
+        .unwrap();
+
+    sleep(Duration::from_secs(2));
 }

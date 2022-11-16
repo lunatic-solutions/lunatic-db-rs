@@ -3,7 +3,6 @@ use lunatic::{spawn_link, Mailbox};
 use lunatic_db::redis::{self, Commands};
 
 fn set_mget() -> redis::RedisResult<(String, Vec<u8>)> {
-    println!("CONNECTED");
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
 

@@ -1,4 +1,4 @@
-use redis::{self, transaction, Commands};
+use lunatic_redis::{self as redis, transaction, Commands};
 
 use std::collections::HashMap;
 use std::env;

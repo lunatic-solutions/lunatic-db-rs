@@ -572,19 +572,6 @@ impl From<Utf8Error> for RedisError {
     }
 }
 
-#[cfg(feature = "tls")]
-impl From<native_tls::Error> for RedisError {
-    fn from(err: native_tls::Error) -> RedisError {
-        RedisError {
-            repr: ErrorRepr::WithDescriptionAndDetail(
-                ErrorKind::IoError,
-                "TLS error",
-                err.to_string(),
-            ),
-        }
-    }
-}
-
 impl From<FromUtf8Error> for RedisError {
     fn from(_: FromUtf8Error) -> RedisError {
         RedisError {

@@ -1,4 +1,4 @@
-use lunatic::net::{TcpStream, ToSocketAddrs};
+use lunatic::net::{TcpStream, TlsStream, ToSocketAddrs};
 use serde;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -15,9 +15,6 @@ use crate::pubsub::RedisPubSub;
 use crate::ErrorKind;
 // use crate::pubsub::PubSub;
 use crate::types::{from_redis_value, FromRedisValue, RedisError, RedisResult, ToRedisArgs, Value};
-
-#[cfg(feature = "tls")]
-use native_tls::{TlsConnector, TlsStream};
 
 static DEFAULT_PORT: u16 = 6379;
 
@@ -74,8 +71,8 @@ impl ConnectionAddr {
     pub fn is_supported(&self) -> bool {
         match *self {
             ConnectionAddr::Tcp(_, _) => true,
-            ConnectionAddr::TcpTls { .. } => cfg!(feature = "tls"),
-            ConnectionAddr::Unix(_) => cfg!(unix),
+            ConnectionAddr::TcpTls { .. } => true,
+            ConnectionAddr::Unix(_) => false,
         }
     }
 }
@@ -170,31 +167,22 @@ fn url_to_tcp_connection_info(url: url::Url) -> RedisResult<ConnectionInfo> {
     };
     let port = url.port().unwrap_or(DEFAULT_PORT);
     let addr = if url.scheme() == "rediss" {
-        #[cfg(feature = "tls")]
-        {
-            match url.fragment() {
-                Some("insecure") => ConnectionAddr::TcpTls {
-                    host,
-                    port,
-                    insecure: true,
-                },
-                Some(_) => fail!((
-                    ErrorKind::InvalidClientConfig,
-                    "only #insecure is supported as URL fragment"
-                )),
-                _ => ConnectionAddr::TcpTls {
-                    host,
-                    port,
-                    insecure: false,
-                },
-            }
+        match url.fragment() {
+            Some("insecure") => ConnectionAddr::TcpTls {
+                host,
+                port,
+                insecure: true,
+            },
+            Some(_) => fail!((
+                ErrorKind::InvalidClientConfig,
+                "only #insecure is supported as URL fragment"
+            )),
+            _ => ConnectionAddr::TcpTls {
+                host,
+                port,
+                insecure: false,
+            },
         }
-
-        #[cfg(not(feature = "tls"))]
-        fail!((
-            ErrorKind::InvalidClientConfig,
-            "can't connect with TLS, the feature is not enabled"
-        ));
     } else {
         ConnectionAddr::Tcp(host, port)
     };
@@ -260,17 +248,15 @@ pub(crate) struct TcpConnection {
     open: bool,
 }
 
-/// TODO: implement lunatic-native TcpStream
-#[cfg(feature = "tls")]
-struct TcpTlsConnection {
-    reader: TlsStream<TcpStream>,
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TcpTlsConnection {
+    reader: TlsStream,
     open: bool,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) enum ActualConnection {
     Tcp(TcpConnection),
-    #[cfg(feature = "tls")]
     TcpTls(TcpTlsConnection),
 }
 
@@ -366,58 +352,30 @@ impl ActualConnection {
                     open: true,
                 })
             }
-            #[cfg(feature = "tls")]
             ConnectionAddr::TcpTls {
                 ref host,
                 port,
                 insecure,
             } => {
-                let tls_connector = if insecure {
-                    TlsConnector::builder()
-                        .danger_accept_invalid_certs(true)
-                        .danger_accept_invalid_hostnames(true)
-                        .use_sni(false)
-                        .build()?
-                } else {
-                    TlsConnector::new()?
-                };
+                // let tls_connector = if insecure {
+                //     TlsConnector::builder()
+                //         .danger_accept_invalid_certs(true)
+                //         .danger_accept_invalid_hostnames(true)
+                //         .use_sni(false)
+                //         .build()?
+                // } else {
+                //     TlsConnector::new()?
+                // };
                 let host: &str = &*host;
                 let tls = match timeout {
-                    None => {
-                        let tcp = TcpStream::connect((host, port))?;
-                        match tls_connector.connect(host, tcp) {
-                            Ok(res) => res,
-                            Err(e) => {
-                                fail!((ErrorKind::IoError, "SSL Handshake error", e.to_string()));
-                            }
+                    None => match TlsStream::connect(host, port.into()) {
+                        Ok(res) => res,
+                        Err(e) => {
+                            fail!((ErrorKind::IoError, "SSL Handshake error", e.to_string()));
                         }
-                    }
+                    },
                     Some(timeout) => {
-                        let mut tcp = None;
-                        let mut last_error = None;
-                        for addr in (host, port).to_socket_addrs()? {
-                            match TcpStream::connect_timeout(&addr, timeout) {
-                                Ok(l) => {
-                                    tcp = Some(l);
-                                    break;
-                                }
-                                Err(e) => {
-                                    last_error = Some(e);
-                                }
-                            };
-                        }
-                        match (tcp, last_error) {
-                            (Some(tcp), _) => tls_connector.connect(host, tcp).unwrap(),
-                            (None, Some(e)) => {
-                                fail!(e);
-                            }
-                            (None, None) => {
-                                fail!((
-                                    ErrorKind::InvalidClientConfig,
-                                    "could not resolve to any addresses"
-                                ));
-                            }
-                        }
+                        TlsStream::connect_timeout(host, timeout, port.into(), vec![]).unwrap()
                     }
                 };
                 ActualConnection::TcpTls(TcpTlsConnection {
@@ -425,7 +383,6 @@ impl ActualConnection {
                     open: true,
                 })
             }
-            #[cfg(not(feature = "tls"))]
             ConnectionAddr::TcpTls { .. } => {
                 fail!((
                     ErrorKind::InvalidClientConfig,
@@ -457,7 +414,6 @@ impl ActualConnection {
                     Ok(_) => Ok(Value::Okay),
                 }
             }
-            #[cfg(feature = "tls")]
             ActualConnection::TcpTls(ref mut connection) => {
                 let res = connection.reader.write_all(bytes).map_err(RedisError::from);
                 match res {
@@ -478,9 +434,8 @@ impl ActualConnection {
             ActualConnection::Tcp(conn) => {
                 conn.reader.set_write_timeout(dur)?;
             }
-            #[cfg(feature = "tls")]
-            ActualConnection::TcpTls(TcpTlsConnection { ref reader, .. }) => {
-                reader.get_ref().set_write_timeout(dur)?;
+            ActualConnection::TcpTls(TcpTlsConnection { ref mut reader, .. }) => {
+                reader.set_write_timeout(dur)?;
             }
         }
         Ok(())
@@ -491,9 +446,8 @@ impl ActualConnection {
             ActualConnection::Tcp(conn) => {
                 conn.reader.set_read_timeout(dur)?;
             }
-            #[cfg(feature = "tls")]
-            ActualConnection::TcpTls(TcpTlsConnection { ref reader, .. }) => {
-                reader.get_ref().set_read_timeout(dur)?;
+            ActualConnection::TcpTls(TcpTlsConnection { ref mut reader, .. }) => {
+                reader.set_read_timeout(dur)?;
             }
         }
         Ok(())
@@ -502,7 +456,6 @@ impl ActualConnection {
     pub fn is_open(&self) -> bool {
         match *self {
             ActualConnection::Tcp(TcpConnection { open, .. }) => open,
-            #[cfg(feature = "tls")]
             ActualConnection::TcpTls(TcpTlsConnection { open, .. }) => open,
         }
     }
@@ -718,7 +671,6 @@ impl Connection {
             (None, ActualConnection::Tcp(TcpConnection { reader, .. })) => {
                 self.parser.parse_value(reader)
             }
-            #[cfg(feature = "tls")]
             (None, ActualConnection::TcpTls(TcpTlsConnection { ref mut reader, .. })) => {
                 self.parser.parse_value(reader)
             }
@@ -735,10 +687,9 @@ impl Connection {
                         // let _ = connection.reader.shutdown(net::Shutdown::Both);
                         // connection.reader.connection.open = false;
                     }
-                    #[cfg(feature = "tls")]
                     ActualConnection::TcpTls(ref mut connection) => {
-                        let _ = connection.reader.shutdown();
-                        connection.open = false;
+                        // let _ = connection.reader.shutdown();
+                        // connection.open = false;
                     }
                 }
             }
@@ -841,6 +792,35 @@ where
 
     fn is_open(&self) -> bool {
         self.deref().is_open()
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub(crate) enum Confirmation {
+    Pattern(String),
+    Punsub(String),
+    Topic(String),
+    Unsub(String),
+}
+
+impl Confirmation {
+    pub(crate) fn check_confirmation(value: &Value) -> Option<Self> {
+        let raw_msg: Vec<Value> = from_redis_value(value).ok()?;
+        let mut iter = raw_msg.iter();
+        let msg_type: String = from_redis_value(iter.next()?).ok()?;
+        let msg_type = msg_type.as_str();
+        if !["unsubscribe", "punsubscribe", "subscribe", "psubscribe"].contains(&msg_type) {
+            return None;
+        }
+        // start iterator to actually skip
+        let matching: String = from_redis_value(iter.next()?).ok()?;
+        Some(match msg_type {
+            "psubscribe" => Confirmation::Pattern(matching),
+            "subscribe" => Confirmation::Topic(matching),
+            "punsubscribe" => Confirmation::Punsub(matching),
+            "unsubscribe" => Confirmation::Unsub(matching),
+            _ => unreachable!(),
+        })
     }
 }
 

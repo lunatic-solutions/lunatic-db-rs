@@ -1,4 +1,4 @@
-use crate::cmd::cmd;
+use crate::{cmd::cmd, connection::Confirmation};
 use lunatic::{abstract_process, net::TcpStream, process::ProcessRef};
 
 use crate::{from_redis_value, Connection, ErrorKind, Msg, RedisError, RedisResult, ToRedisArgs};
@@ -166,7 +166,18 @@ impl RedisPubSub {
     #[handle_request]
     /// receive messages from any of the subscribed topics or patterns
     pub fn receive(&mut self) -> RedisResult<Msg> {
-        let next = self.connection.recv_response::<TcpStream>()?;
+        let next = loop {
+            let polled = self.connection.recv_response::<TcpStream>()?;
+            match Confirmation::check_confirmation(&polled) {
+                Some(confirmation) => {
+                    println!("Received some confirmation {:?}", confirmation);
+                    continue;
+                }
+                None => break polled,
+            };
+        };
+        // println!("RECEIVED NEXT {:?}", next);
+        // make sure we just consume "subscription success" messages
         match Msg::from_value(&next) {
             Some(msg) => Ok(msg),
             None => Err(RedisError::from((

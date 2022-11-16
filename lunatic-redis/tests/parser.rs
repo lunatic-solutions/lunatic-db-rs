@@ -1,9 +1,7 @@
-use std::io::Read;
-
 use lunatic_redis::Value;
 use partial_io::{
     quickcheck_types::{GenWouldBlock, PartialWithErrors},
-    PartialOp, PartialRead,
+    PartialRead,
 };
 use quickcheck::{quickcheck, Gen};
 mod support;
@@ -94,11 +92,11 @@ quickcheck! {
         let mut encoded_input = Vec::new();
         encode_value(&input.0, &mut encoded_input).unwrap();
 
-        let mut reader = &encoded_input[..];
-        let mut partial_reader = PartialRead::new(reader, Box::new(seq.into_iter()));
+        let mut _reader = &encoded_input[..];
+        let mut _partial_reader = PartialRead::new(_reader, Box::new(seq.into_iter()));
         // let mut decoder = combine::stream::Decoder::new();
 
-        let result = lunatic_redis::parse_redis_value(partial_reader);
+        let result = lunatic_redis::parse_redis_value(_partial_reader);
         assert!(result.as_ref().is_ok(), "{}", result.unwrap_err());
         assert_eq!(
             result.unwrap(),
