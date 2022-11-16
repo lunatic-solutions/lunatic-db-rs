@@ -716,11 +716,13 @@ impl RedisError {
         self.as_io_error().is_some()
     }
 
+    // TODO: implement mapping of custom IoErrorKind type to io::ErrorKind
     pub(crate) fn as_io_error(&self) -> Option<&io::Error> {
-        match &self.repr {
-            // ErrorRepr::IoError(kind, desc) => Some(e),
-            _ => None,
-        }
+        None
+        // match &self.repr {
+        //     ErrorRepr::IoError(kind, desc) => Some(&io::Error::new(kind.into(), desc)),
+        //     _ => None,
+        // }
     }
 
     /// Indicates that this is a cluster error.

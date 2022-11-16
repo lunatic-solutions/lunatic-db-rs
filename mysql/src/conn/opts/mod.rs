@@ -457,7 +457,7 @@ impl Opts {
 /// let connection_opts = mysql::Opts::from_url("mysql://root:password@localhost:3307/mysql?prefer_socket=false").unwrap();
 /// let pool = mysql::Pool::new(connection_opts).unwrap();
 /// ```
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Default)]
 pub struct OptsBuilder {
     opts: Opts,
 }
@@ -829,14 +829,6 @@ impl OptsBuilder {
 impl From<OptsBuilder> for Opts {
     fn from(builder: OptsBuilder) -> Opts {
         builder.opts
-    }
-}
-
-impl Default for OptsBuilder {
-    fn default() -> OptsBuilder {
-        OptsBuilder {
-            opts: Opts::default(),
-        }
     }
 }
 

@@ -352,21 +352,7 @@ impl ActualConnection {
                     open: true,
                 })
             }
-            ConnectionAddr::TcpTls {
-                ref host,
-                port,
-                insecure,
-            } => {
-                // let tls_connector = if insecure {
-                //     TlsConnector::builder()
-                //         .danger_accept_invalid_certs(true)
-                //         .danger_accept_invalid_hostnames(true)
-                //         .use_sni(false)
-                //         .build()?
-                // } else {
-                //     TlsConnector::new()?
-                // };
-                let host: &str = &*host;
+            ConnectionAddr::TcpTls { ref host, port, .. } => {
                 let tls = match timeout {
                     None => match TlsStream::connect(host, port.into()) {
                         Ok(res) => res,
@@ -382,12 +368,6 @@ impl ActualConnection {
                     reader: tls,
                     open: true,
                 })
-            }
-            ConnectionAddr::TcpTls { .. } => {
-                fail!((
-                    ErrorKind::InvalidClientConfig,
-                    "Cannot connect to TCP with TLS without the tls feature"
-                ));
             }
             #[cfg(not(unix))]
             ConnectionAddr::Unix(ref _path) => {
