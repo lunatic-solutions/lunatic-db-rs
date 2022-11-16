@@ -12,15 +12,88 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+lunatic-redis = {path = "lunatic-redis"}
 mysql = {path = "mysql"}
 
 [workspace]
-members = ["mysql"]
+members = ["mysql", "lunatic-redis"]
 
 [profile.bench]
 debug = true
 
 [dev-dependencies]
-lunatic = {version = "0.10.2"}
+fnv = "1.0.5"
+lunatic = "0.12.0"
 lunatic-db = {path = "."}
+partial-io = {version = "0.5", features = ["quickcheck1"]}
+quickcheck = "1.0.3"
+rand = "0.8"
 serde = {version = "1.0.132", features = ["derive"]}
+tempfile = "3.2"
+
+[[example]]
+name = "redis-queues"
+path = "lunatic-redis/examples/queues.rs"
+
+[[example]]
+name = "redis-basic"
+path = "lunatic-redis/examples/basic.rs"
+
+[[example]]
+name = "redis-set-mget"
+path = "lunatic-redis/examples/set-mget.rs"
+
+[[example]]
+name = "redis-pub-sub"
+path = "lunatic-redis/examples/pub-sub.rs"
+
+[[example]]
+name = "redis-streams"
+path = "lunatic-redis/examples/streams.rs"
+
+[[example]]
+name = "redis-geospatial"
+path = "lunatic-redis/examples/geospatial.rs"
+
+[[example]]
+name = "redis-scan"
+path = "lunatic-redis/examples/scan.rs"
+
+# tests of subcrates
+# [[test]]
+# name = "redis_test_basic"
+# path = "lunatic-redis/tests/test_basic.rs"
+
+# [[test]]
+# name = "test_async_async_std"
+# required-features = ["async-std-comp"]
+
+[[test]]
+name = "redis-parser"
+path = "lunatic-redis/tests/parser.rs"
+
+[[test]]
+name = "redis-types"
+path = "lunatic-redis/tests/test_types.rs"
+
+[[test]]
+name = "redis-streams"
+path = "lunatic-redis/tests/test_streams.rs"
+
+# [[test]]
+# name = "test_acl"
+
+# [[bench]]
+# harness = false
+# name = "bench_basic"
+# required-features = ["tokio-comp"]
+
+# [[bench]]
+# harness = false
+# name = "bench_cluster"
+# required-features = ["cluster"]
+
+# MySQL examples
+# [[example]]
+# name = "mysql-basic"
+# path = "mysql/examples/mysql.rs"

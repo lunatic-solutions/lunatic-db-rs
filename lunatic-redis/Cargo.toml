@@ -1,0 +1,102 @@
+[package]
+description = "Redis driver for the lunatic runtime."
+documentation = "https://docs.rs/redis"
+edition = "2018"
+homepage = "https://github.com/lunatic/lunatic-db/lunatic-redis"
+keywords = ["redis", "database"]
+license = "BSD-3-Clause"
+name = "lunatic-redis"
+repository = "https://github.com/lunatic/lunatic-db/lunatic-redis"
+rust-version = "1.57"
+version = "0.21.5"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dependencies]
+# These two are generally really common simple dependencies so it does not seem
+# much of a point to optimize these, but these could in theory be removed for
+# an indirection through std::Formatter.
+itoa = "1.0"
+ryu = "1.0"
+serde = {version = "1.0", features = ["derive"]}
+
+# lunatic dependency
+lunatic = "0.12.0"
+
+# This is a dependency that already exists in url
+percent-encoding = "2.1"
+
+# We need this for redis url parsing
+url = "2.1"
+
+# We need this for script support
+sha1_smol = {version = "1.0", optional = true}
+
+combine = {version = "4.6", default-features = false, features = ["std"]}
+
+# Only needed for the connection manager
+arc-swap = {version = "1.1.0", optional = true}
+
+# Only needed for the r2d2 feature
+r2d2 = {version = "0.8.8", optional = true}
+
+# Only needed for cluster
+crc16 = {version = "0.4", optional = true}
+rand = {version = "0.8", optional = true}
+
+# Only needed for TLS
+async-native-tls = {version = "0.4", optional = true}
+native-tls = {version = "0.2", optional = true}
+tokio-native-tls = {version = "0.3", optional = true}
+
+paste = "1.0"
+
+# Optional aHash support
+ahash = {version = "0.7.6", optional = true}
+
+[features]
+acl = []
+cluster = ["crc16", "rand"]
+connection-manager = ["arc-swap"]
+default = ["acl", "streams", "geospatial", "script"]
+geospatial = []
+script = ["sha1_smol"]
+streams = []
+tls = ["native-tls"]
+
+[dev-dependencies]
+assert_approx_eq = "1.0"
+criterion = "0.3"
+fnv = "1.0.5"
+lunatic = "0.12.0"
+lunatic-db = {path = "../"}
+quickcheck = "1.0.3"
+rand = "0.8"
+serde = {version = "1.0.132", features = ["derive"]}
+socket2 = "0.4"
+tempfile = "3.2"
+
+# [[example]]
+# name = "async-multiplexed"
+# required-features = ["tokio-comp"]
+
+# [[example]]
+# name = "async-await"
+# required-features = []
+
+# [[example]]
+# name = "async-pub-sub"
+# required-features = []
+
+# [[example]]
+# name = "async-scan"
+
+# [[example]]
+# name = "async-connection-loss"
+# required-features = ["connection-manager"]
+
+# [[example]]
+# name = "streams"
+# required-features = ["streams"]

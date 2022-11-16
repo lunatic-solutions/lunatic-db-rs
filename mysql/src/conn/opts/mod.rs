@@ -999,7 +999,7 @@ mod test {
             };
         );
 
-        let mut cnf_map = map! {
+        let cnf_map = map! {
             "user".to_string() => "test".to_string(),
             "password".to_string() => "password".to_string(),
             "host".to_string() => "127.0.0.1".to_string(),

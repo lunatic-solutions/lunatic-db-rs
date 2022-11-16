@@ -668,7 +668,7 @@ impl Conn {
             self.0.opts.get_db_name().map(str::as_bytes),
             Some(auth_plugin.clone()),
             self.0.capability_flags,
-            Some(self.connect_attrs().clone()),
+            Some(self.connect_attrs()),
         );
 
         let mut buf = get_buffer();
@@ -853,7 +853,7 @@ impl Conn {
                     ComStmtExecuteRequestBuilder::new(stmt.id()).build(&*params);
 
                 if as_long_data {
-                    self.send_long_data(stmt.id(), &*params)?;
+                    self.send_long_data(stmt.id(), params)?;
                 }
 
                 body
@@ -1184,7 +1184,7 @@ mod test {
         use std::{
             collections::HashMap,
             io::Write,
-            iter, process,
+            iter,
             sync::mpsc::{channel, sync_channel},
             thread::spawn,
             time::Duration,
