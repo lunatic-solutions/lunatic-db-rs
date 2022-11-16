@@ -1,7 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::convert::From;
 use std::default::Default;
-use std::error;
 use std::fmt;
 use std::hash::{BuildHasher, Hash};
 use std::io;
@@ -101,7 +100,7 @@ pub enum ErrorKind {
 }
 
 /// Internal low-level redis value enum.
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Deserialize, Serialize)]
 pub enum Value {
     /// A nil response from the server.
     Nil,
@@ -647,7 +646,7 @@ impl fmt::Display for RedisError {
                 detail.fmt(f)
             }
             ErrorRepr::IoError(kind, desc) => {
-                write!(f, "{}: {}", kind, desc);
+                write!(f, "{}: {}", kind, desc)?;
                 Ok(())
             }
         }
@@ -751,7 +750,7 @@ impl RedisError {
     /// local server is available.
     pub fn is_connection_refusal(&self) -> bool {
         match &self.repr {
-            ErrorRepr::IoError(kind, desc) =>
+            ErrorRepr::IoError(kind, _desc) =>
             {
                 #[allow(clippy::match_like_matches_macro)]
                 match kind {
@@ -767,7 +766,7 @@ impl RedisError {
     /// Note that this may not be accurate depending on platform.
     pub fn is_timeout(&self) -> bool {
         match &self.repr {
-            ErrorRepr::IoError(kind, desc) => {
+            ErrorRepr::IoError(kind, _desc) => {
                 matches!(kind, IoErrorKind::TimedOut | IoErrorKind::WouldBlock)
             }
             _ => false,
@@ -777,7 +776,7 @@ impl RedisError {
     /// Returns true if error was caused by a dropped connection.
     pub fn is_connection_dropped(&self) -> bool {
         match &self.repr {
-            ErrorRepr::IoError(kind, desc) => {
+            ErrorRepr::IoError(kind, _desc) => {
                 matches!(kind, IoErrorKind::BrokenPipe | IoErrorKind::ConnectionReset)
             }
             _ => false,

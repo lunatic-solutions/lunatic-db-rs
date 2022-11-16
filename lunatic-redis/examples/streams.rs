@@ -1,10 +1,12 @@
-#![cfg(feature = "streams")]
+// #![cfg(feature = "streams")]
 
+use lunatic::protocol::{Protocol, Recv, TaskEnd};
+use lunatic::{sleep, spawn_link, Mailbox};
+use lunatic_redis as redis;
 use redis::streams::{StreamId, StreamKey, StreamMaxlen, StreamReadOptions, StreamReadReply};
 
 use redis::{Commands, RedisResult, Value};
 
-use std::thread;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -20,7 +22,8 @@ const SLOWNESSES: &[u8] = &[2, 3, 4];
 /// different streams.  It then reads the data back in such a way
 /// that demonstrates basic usage of both the XREAD and XREADGROUP
 /// commands.
-fn main() {
+#[lunatic::main]
+fn main(_: Mailbox<()>) {
     let client = redis::Client::open("redis://127.0.0.1/").expect("client");
 
     println!("Demonstrating XADD followed by XREAD, single threaded\n");
@@ -34,20 +37,22 @@ fn main() {
     clean_up(&client)
 }
 
+type HandlerProtocol = Recv<(), TaskEnd>;
+
 fn demo_group_reads(client: &redis::Client) {
     println!("\n\nDemonstrating a longer stream of data flowing\nin over time, consumed by multiple threads using XREADGROUP\n");
 
-    let mut handles = vec![];
+    let mut handles: Vec<Protocol<HandlerProtocol>> = vec![];
 
     let cc = client.clone();
     // Launch a producer thread which repeatedly adds records,
     // with only a small delay between writes.
-    handles.push(thread::spawn(move || {
+    handles.push(spawn_link!(@task |cc| {
         let repeat = 30;
         let slowness = 1;
         for _ in 0..repeat {
             add_records(&cc).expect("add");
-            thread::sleep(Duration::from_millis(random_wait_millis(slowness)))
+            sleep(Duration::from_millis(random_wait_millis(slowness)))
         }
     }));
 
@@ -68,7 +73,9 @@ fn demo_group_reads(client: &redis::Client) {
     for slowness in SLOWNESSES {
         let repeat = 5;
         let ca = client.clone();
-        handles.push(thread::spawn(move || {
+        let ctx = (ca, repeat, *slowness);
+        handles.push(spawn_link!(@task |ctx| {
+            let (ca, repeat, slowness) = ctx;
             let mut con = ca.get_connection().expect("con");
 
             // We must create each group and each consumer
@@ -82,12 +89,12 @@ fn demo_group_reads(client: &redis::Client) {
             }
 
             for _ in 0..repeat {
-                let read_reply = read_group_records(&ca, *slowness).expect("group read");
+                let read_reply = read_group_records(&ca, slowness).expect("group read");
 
                 // fake some expensive work
                 for StreamKey { key, ids } in read_reply.keys {
                     for StreamId { id, map: _ } in &ids {
-                        thread::sleep(Duration::from_millis(random_wait_millis(*slowness)));
+                        sleep(Duration::from_millis(random_wait_millis(slowness)));
                         println!(
                             "Stream {} ID {} Consumer slowness {} SysTime {}",
                             key,
@@ -111,7 +118,7 @@ fn demo_group_reads(client: &redis::Client) {
     }
 
     for h in handles {
-        h.join().expect("Join")
+        h.result()
     }
 }
 

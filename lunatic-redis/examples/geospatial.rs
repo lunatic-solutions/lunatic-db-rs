@@ -1,10 +1,10 @@
 use std::process::exit;
 
-use redis::RedisResult;
+use lunatic_redis::RedisResult;
 
-#[cfg(feature = "geospatial")]
+// #[cfg(feature = "geospatial")]
 fn run() -> RedisResult<()> {
-    use redis::{geo, Commands};
+    use lunatic_redis::{geo, Commands};
     use std::env;
     use std::f64;
 
@@ -13,7 +13,7 @@ fn run() -> RedisResult<()> {
         Err(..) => "redis://127.0.0.1/".to_string(),
     };
 
-    let client = redis::Client::open(redis_url.as_str())?;
+    let client = lunatic_redis::Client::open(redis_url.as_str())?;
     let mut con = client.get_connection()?;
 
     // Add some members to the geospatial index.
@@ -54,10 +54,10 @@ fn run() -> RedisResult<()> {
     Ok(())
 }
 
-#[cfg(not(feature = "geospatial"))]
-fn run() -> RedisResult<()> {
-    Ok(())
-}
+// #[cfg(not(feature = "geospatial"))]
+// fn run() -> RedisResult<()> {
+//     Ok(())
+// }
 
 fn main() {
     if let Err(e) = run() {

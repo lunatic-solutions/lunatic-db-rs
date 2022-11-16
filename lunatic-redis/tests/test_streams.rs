@@ -1,7 +1,7 @@
 #![cfg(feature = "streams")]
 
-use redis::streams::*;
-use redis::{Commands, Connection, RedisResult, ToRedisArgs};
+use lunatic_redis::streams::*;
+use lunatic_redis::{Commands, Connection, RedisResult, ToRedisArgs};
 
 mod support;
 use crate::support::*;
@@ -35,7 +35,7 @@ fn xadd_keyrange(con: &mut Connection, key: &str, start: i32, end: i32) {
     }
 }
 
-#[test]
+#[lunatic::test]
 fn test_cmd_options() {
     // Tests the following command option builders....
     // xclaim_options
@@ -100,7 +100,7 @@ fn test_cmd_options() {
     assert_args!(&opts, "BLOCK", "100", "COUNT", "200");
 }
 
-#[test]
+#[lunatic::test]
 fn test_assorted_1() {
     // Tests the following commands....
     // xadd
@@ -166,7 +166,7 @@ fn test_assorted_1() {
     assert_eq!(result, Ok(10));
 }
 
-#[test]
+#[lunatic::test]
 fn test_xgroup_create() {
     // Tests the following commands....
     // xadd
@@ -204,7 +204,7 @@ fn test_xgroup_create() {
     assert_eq!(&reply.groups[0].name, &"g1");
 }
 
-#[test]
+#[lunatic::test]
 fn test_assorted_2() {
     // Tests the following commands....
     // xadd
@@ -339,7 +339,7 @@ fn assert_stream_pending_data(data: StreamPendingData) {
     assert_eq!(data.consumers[0].name, "c99");
 }
 
-#[test]
+#[lunatic::test]
 fn test_xadd_maxlen_map() {
     let ctx = TestContext::new();
     let mut con = ctx.connection();
@@ -361,7 +361,7 @@ fn test_xadd_maxlen_map() {
     assert_eq!(reply.ids[2].get("idx"), Some("9".to_string()));
 }
 
-#[test]
+#[lunatic::test]
 fn test_xclaim() {
     // Tests the following commands....
     // xclaim
@@ -466,7 +466,7 @@ fn test_xclaim() {
     assert_eq!(claimed.len(), 10);
 }
 
-#[test]
+#[lunatic::test]
 fn test_xdel() {
     // Tests the following commands....
     // xdel
@@ -486,7 +486,7 @@ fn test_xdel() {
     assert_eq!(result, Ok(2));
 }
 
-#[test]
+#[lunatic::test]
 fn test_xtrim() {
     // Tests the following commands....
     // xtrim
@@ -505,7 +505,7 @@ fn test_xtrim() {
     assert_eq!(result, Ok(40));
 }
 
-#[test]
+#[lunatic::test]
 fn test_xgroup() {
     // Tests the following commands....
     // xgroup_create_mkstream
@@ -548,7 +548,7 @@ fn test_xgroup() {
     assert_eq!(result, Ok(1));
 }
 
-#[test]
+#[lunatic::test]
 fn test_xrange() {
     // Tests the following commands....
     // xrange (-/+ variations)
@@ -574,7 +574,7 @@ fn test_xrange() {
     assert_eq!(reply.ids.len(), 1);
 }
 
-#[test]
+#[lunatic::test]
 fn test_xrevrange() {
     // Tests the following commands....
     // xrevrange (+/- variations)

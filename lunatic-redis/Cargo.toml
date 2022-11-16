@@ -23,7 +23,7 @@ ryu = "1.0"
 serde = {version = "1.0", features = ["derive"]}
 
 # lunatic dependency
-lunatic = {path = "../../rust-lib"}
+lunatic = "0.12.0"
 
 # This is a dependency that already exists in url
 percent-encoding = "2.1"
@@ -51,6 +51,8 @@ async-native-tls = {version = "0.4", optional = true}
 native-tls = {version = "0.2", optional = true}
 tokio-native-tls = {version = "0.3", optional = true}
 
+paste = "1.0"
+
 # Optional aHash support
 ahash = {version = "0.7.6", optional = true}
 
@@ -68,38 +70,13 @@ tls = ["native-tls"]
 assert_approx_eq = "1.0"
 criterion = "0.3"
 fnv = "1.0.5"
-lunatic = {path = "../../rust-lib"}
+lunatic = "0.12.0"
 lunatic-db = {path = "../"}
 quickcheck = "1.0.3"
 rand = "0.8"
 serde = {version = "1.0.132", features = ["derive"]}
 socket2 = "0.4"
 tempfile = "3.2"
-
-[[test]]
-name = "test_async"
-required-features = ["tokio-comp"]
-
-[[test]]
-name = "test_async_async_std"
-required-features = ["async-std-comp"]
-
-[[test]]
-name = "parser"
-required-features = ["aio"]
-
-[[test]]
-name = "test_acl"
-
-[[bench]]
-harness = false
-name = "bench_basic"
-required-features = ["tokio-comp"]
-
-[[bench]]
-harness = false
-name = "bench_cluster"
-required-features = ["cluster"]
 
 # [[example]]
 # name = "async-multiplexed"

@@ -1,7 +1,7 @@
-#[test]
-fn test_is_single_arg() {
-    use redis::ToRedisArgs;
+use lunatic_redis::ToRedisArgs;
 
+#[lunatic::test]
+fn test_is_single_arg() {
     let sslice: &[_] = &["foo"][..];
     let nestslice: &[_] = &[sslice][..];
     let nestvec = vec![nestslice];
@@ -19,9 +19,9 @@ fn test_is_single_arg() {
     assert!(!twobytesvec.is_single_arg());
 }
 
-#[test]
+#[lunatic::test]
 fn test_info_dict() {
-    use redis::{FromRedisValue, InfoDict, Value};
+    use lunatic_redis::{FromRedisValue, InfoDict, Value};
 
     let d: InfoDict = FromRedisValue::from_redis_value(&Value::Status(
         "# this is a comment\nkey1:foo\nkey2:42\n".into(),
@@ -33,9 +33,9 @@ fn test_info_dict() {
     assert_eq!(d.get::<String>("key3"), None);
 }
 
-#[test]
+#[lunatic::test]
 fn test_i32() {
-    use redis::{ErrorKind, FromRedisValue, Value};
+    use lunatic_redis::{ErrorKind, FromRedisValue, Value};
 
     let i = FromRedisValue::from_redis_value(&Value::Status("42".into()));
     assert_eq!(i, Ok(42i32));
@@ -50,9 +50,9 @@ fn test_i32() {
     assert_eq!(bad_i.unwrap_err().kind(), ErrorKind::TypeError);
 }
 
-#[test]
+#[lunatic::test]
 fn test_u32() {
-    use redis::{ErrorKind, FromRedisValue, Value};
+    use lunatic_redis::{ErrorKind, FromRedisValue, Value};
 
     let i = FromRedisValue::from_redis_value(&Value::Status("42".into()));
     assert_eq!(i, Ok(42u32));
@@ -61,9 +61,9 @@ fn test_u32() {
     assert_eq!(bad_i.unwrap_err().kind(), ErrorKind::TypeError);
 }
 
-#[test]
+#[lunatic::test]
 fn test_vec() {
-    use redis::{FromRedisValue, Value};
+    use lunatic_redis::{FromRedisValue, Value};
 
     let v = FromRedisValue::from_redis_value(&Value::Bulk(vec![
         Value::Data("1".into()),
@@ -74,9 +74,9 @@ fn test_vec() {
     assert_eq!(v, Ok(vec![1i32, 2, 3]));
 }
 
-#[test]
+#[lunatic::test]
 fn test_tuple() {
-    use redis::{FromRedisValue, Value};
+    use lunatic_redis::{FromRedisValue, Value};
 
     let v = FromRedisValue::from_redis_value(&Value::Bulk(vec![Value::Bulk(vec![
         Value::Data("1".into()),
@@ -87,10 +87,10 @@ fn test_tuple() {
     assert_eq!(v, Ok(((1i32, 2, 3,),)));
 }
 
-#[test]
+#[lunatic::test]
 fn test_hashmap() {
     use fnv::FnvHasher;
-    use redis::{FromRedisValue, Value};
+    use lunatic_redis::{FromRedisValue, Value};
     use std::collections::HashMap;
     use std::hash::BuildHasherDefault;
 
@@ -129,9 +129,9 @@ fn test_hashmap() {
     assert_eq!(v, Ok(e));
 }
 
-#[test]
+#[lunatic::test]
 fn test_bool() {
-    use redis::{ErrorKind, FromRedisValue, Value};
+    use lunatic_redis::{ErrorKind, FromRedisValue, Value};
 
     let v = FromRedisValue::from_redis_value(&Value::Data("1".into()));
     assert_eq!(v, Ok(true));
@@ -165,10 +165,10 @@ fn test_bool() {
 }
 
 #[cfg(feature = "bytes")]
-#[test]
+#[lunatic::test]
 fn test_bytes() {
     use bytes::Bytes;
-    use redis::{ErrorKind, FromRedisValue, RedisResult, Value};
+    use lunatic_redis::{ErrorKind, FromRedisValue, RedisResult, Value};
 
     let content: &[u8] = b"\x01\x02\x03\x04";
     let content_vec: Vec<u8> = Vec::from(content);
@@ -193,9 +193,9 @@ fn test_bytes() {
     assert_eq!(v.unwrap_err().kind(), ErrorKind::TypeError);
 }
 
-#[test]
+#[lunatic::test]
 fn test_types_to_redis_args() {
-    use redis::ToRedisArgs;
+    use lunatic_redis::ToRedisArgs;
     use std::collections::BTreeMap;
     use std::collections::BTreeSet;
     use std::collections::HashSet;

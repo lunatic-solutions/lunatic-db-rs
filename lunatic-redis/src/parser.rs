@@ -209,7 +209,7 @@ impl Parser {
 ///
 /// This is the most straightforward way to parse something into a low
 /// level redis value instead of having to use a whole parser.
-pub fn parse_redis_value(bytes: &[u8]) -> RedisResult<Value> {
+pub fn parse_redis_value<T: Read>(bytes: T) -> RedisResult<Value> {
     let mut parser = Parser::new();
     parser.parse_value(bytes)
 }

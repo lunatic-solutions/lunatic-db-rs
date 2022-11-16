@@ -364,7 +364,7 @@ pub use crate::cmd::{cmd, pack_command, pipe, Arg, Cmd, Iter};
 pub use crate::commands::{Commands, ControlFlow, Direction, LposOptions, PubSubCommands};
 pub use crate::connection::{
     parse_redis_url, transaction, Connection, ConnectionAddr, ConnectionInfo, ConnectionLike,
-    IntoConnectionInfo, Msg, PubSub, RedisConnectionInfo,
+    IntoConnectionInfo, Msg, RedisConnectionInfo,
 };
 pub use crate::parser::{parse_redis_value, Parser};
 pub use crate::pipeline::Pipeline;
@@ -402,6 +402,10 @@ pub use crate::types::{
 
 mod macros;
 mod pipeline;
+
+mod pubsub;
+
+pub use pubsub::RedisPubSub;
 
 #[cfg(feature = "acl")]
 #[cfg_attr(docsrs, doc(cfg(feature = "acl")))]

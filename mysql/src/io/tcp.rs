@@ -26,10 +26,10 @@ impl<T: ToSocketAddrs> MyTcpBuilder<T> {
         self
     }
 
-    pub fn nodelay(&mut self, nodelay: bool) -> &mut Self {
-        self.nodelay = nodelay;
-        self
-    }
+    // pub fn nodelay(&mut self, nodelay: bool) -> &mut Self {
+    //     self.nodelay = nodelay;
+    //     self
+    // }
 
     pub fn write_timeout(&mut self, write_timeout: Option<Duration>) -> &mut Self {
         self.write_timeout = write_timeout;
@@ -124,6 +124,6 @@ impl<T: ToSocketAddrs> MyTcpBuilder<T> {
         //     socket.set_tcp_keepalive(&conf)?;
         // }
         // socket.set_nodelay(nodelay)?;
-        Ok(TcpStream::from(socket))
+        Ok(socket)
     }
 }

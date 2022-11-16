@@ -1,12 +1,14 @@
 use std::time::Duration;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     connection::{connect, Connection, ConnectionInfo, ConnectionLike, IntoConnectionInfo},
     types::{RedisResult, Value},
 };
 
 /// The client type.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Client {
     connection_info: ConnectionInfo,
 }

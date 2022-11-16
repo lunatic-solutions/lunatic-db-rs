@@ -1,7 +1,7 @@
 // can't use rustfmt here because it screws up the file.
 #![cfg_attr(rustfmt, rustfmt_skip)]
 use crate::cmd::{cmd, Cmd, Iter};
-use crate::connection::{Connection, ConnectionLike, Msg};
+use crate::connection::{ConnectionLike, Msg};
 use crate::pipeline::Pipeline;
 use crate::types::{FromRedisValue, NumericBehavior, RedisResult, ToRedisArgs, RedisWrite, Expiry};
 
@@ -1909,41 +1909,41 @@ pub trait PubSubCommands: Sized {
 
 impl<T> Commands for T where T: ConnectionLike {}
 
-impl PubSubCommands for Connection {
-    fn subscribe<C, F, U>(&mut self, channels: C, mut func: F) -> RedisResult<U>
-    where
-        F: FnMut(Msg) -> ControlFlow<U>,
-        C: ToRedisArgs,
-    {
-        let mut pubsub = self.as_pubsub();
-        pubsub.subscribe(channels)?;
+// impl PubSubCommands for PubSubWriter {
+//     fn subscribe<C, F, U>(&mut self, channels: C, mut func: F) -> RedisResult<U>
+//     where
+//         F: FnMut(Msg) -> ControlFlow<U>,
+//         C: ToRedisArgs,
+//     {
+//         // let mut pubsub = self.as_pubsub();
+//         self.subscribe(channels)?;
 
-        loop {
-            let msg = pubsub.get_message()?;
-            match func(msg) {
-                ControlFlow::Continue => continue,
-                ControlFlow::Break(value) => return Ok(value),
-            }
-        }
-    }
+//         loop {
+//             let msg = pubsub.get_message()?;
+//             match func(msg) {
+//                 ControlFlow::Continue => continue,
+//                 ControlFlow::Break(value) => return Ok(value),
+//             }
+//         }
+//     }
 
-    fn psubscribe<P, F, U>(&mut self, patterns: P, mut func: F) -> RedisResult<U>
-    where
-        F: FnMut(Msg) -> ControlFlow<U>,
-        P: ToRedisArgs,
-    {
-        let mut pubsub = self.as_pubsub();
-        pubsub.psubscribe(patterns)?;
+//     fn psubscribe<P, F, U>(&mut self, patterns: P, mut func: F) -> RedisResult<U>
+//     where
+//         F: FnMut(Msg) -> ControlFlow<U>,
+//         P: ToRedisArgs,
+//     {
+//         let mut pubsub = self.as_pubsub();
+//         pubsub.psubscribe(patterns)?;
 
-        loop {
-            let msg = pubsub.get_message()?;
-            match func(msg) {
-                ControlFlow::Continue => continue,
-                ControlFlow::Break(value) => return Ok(value),
-            }
-        }
-    }
-}
+//         loop {
+//             let msg = pubsub.get_message()?;
+//             match func(msg) {
+//                 ControlFlow::Continue => continue,
+//                 ControlFlow::Break(value) => return Ok(value),
+//             }
+//         }
+//     }
+// }
 
 /// Options for the [LPOS](https://redis.io/commands/lpos) command
 ///

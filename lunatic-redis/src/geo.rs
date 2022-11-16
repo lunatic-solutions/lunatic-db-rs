@@ -52,7 +52,7 @@ impl ToRedisArgs for Unit {
 ///
 /// * You may want to use either `f64` or `f32` if you want to perform mathematical operations.
 /// * To keep the raw value from Redis, use `String`.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Coord<T> {
     /// Longitude
     pub longitude: T,

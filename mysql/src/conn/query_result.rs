@@ -331,7 +331,7 @@ impl<T: crate::prelude::Protocol> Iterator for QueryResult<'_, '_, '_, T> {
         match state {
             InSet(cols) => match T::next(&mut *self.conn, cols.clone()) {
                 Ok(Some(row)) => {
-                    self.state = InSet(cols.clone());
+                    self.state = InSet(cols);
                     Some(Ok(row))
                 }
                 Ok(None) => {
@@ -366,7 +366,7 @@ impl<T: crate::prelude::Protocol> Drop for ResultSet<'_, '_, '_, '_, T> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SetColumns<'a> {
     inner: Option<&'a Arc<[Column]>>,
 }

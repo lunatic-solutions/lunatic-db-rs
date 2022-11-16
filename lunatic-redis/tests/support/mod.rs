@@ -5,8 +5,8 @@ use std::{
     time::Duration,
 };
 
-use redis::Value;
-use socket2::{Domain, Socket, Type};
+use lunatic::net::TcpStream;
+use lunatic_redis::Value;
 use tempfile::TempDir;
 
 #[cfg(feature = "cluster")]
@@ -24,7 +24,7 @@ enum ServerType {
 pub struct RedisServer {
     pub process: process::Child,
     tempdir: Option<tempfile::TempDir>,
-    addr: redis::ConnectionAddr,
+    addr: lunatic_redis::ConnectionAddr,
 }
 
 impl ServerType {
@@ -51,27 +51,28 @@ impl RedisServer {
             ServerType::Tcp { tls } => {
                 // this is technically a race but we can't do better with
                 // the tools that redis gives us :(
-                let addr = &"127.0.0.1:0".parse::<SocketAddr>().unwrap().into();
-                let socket = Socket::new(Domain::IPV4, Type::STREAM, None).unwrap();
-                socket.set_reuse_address(true).unwrap();
-                socket.bind(addr).unwrap();
-                socket.listen(1).unwrap();
-                let listener = TcpListener::from(socket);
-                let redis_port = listener.local_addr().unwrap().port();
+                let addr = &"127.0.0.1:0".parse::<SocketAddr>().unwrap();
+                // let socket = TcpStream::connect(Domain::IPV4, Type::STREAM, None).unwrap();
+                // socket.set_reuse_address(true).unwrap();
+                // socket.bind(addr).unwrap();
+                // socket.listen(1).unwrap();
+                let listener = TcpListener::bind(addr);
+                // let redis_port = listener.local_addr().unwrap().port();
+                let redis_port = 0;
                 if tls {
-                    redis::ConnectionAddr::TcpTls {
+                    lunatic_redis::ConnectionAddr::TcpTls {
                         host: "127.0.0.1".to_string(),
                         port: redis_port,
                         insecure: true,
                     }
                 } else {
-                    redis::ConnectionAddr::Tcp("127.0.0.1".to_string(), redis_port)
+                    lunatic_redis::ConnectionAddr::Tcp("127.0.0.1".to_string(), redis_port)
                 }
             }
             ServerType::Unix => {
                 let (a, b) = rand::random::<(u64, u64)>();
                 let path = format!("/tmp/redis-rs-test-{}-{}.sock", a, b);
-                redis::ConnectionAddr::Unix(PathBuf::from(&path))
+                lunatic_redis::ConnectionAddr::Unix(PathBuf::from(&path))
             }
         };
         RedisServer::new_with_addr(addr, None, |cmd| {
@@ -81,7 +82,7 @@ impl RedisServer {
     }
 
     pub fn new_with_addr<F: FnOnce(&mut process::Command) -> process::Child>(
-        addr: redis::ConnectionAddr,
+        addr: lunatic_redis::ConnectionAddr,
         tls_paths: Option<TlsFilePaths>,
         spawner: F,
     ) -> RedisServer {
@@ -94,7 +95,7 @@ impl RedisServer {
             .tempdir()
             .expect("failed to create tempdir");
         match addr {
-            redis::ConnectionAddr::Tcp(ref bind, server_port) => {
+            lunatic_redis::ConnectionAddr::Tcp(ref bind, server_port) => {
                 redis_cmd
                     .arg("--port")
                     .arg(server_port.to_string())
@@ -107,7 +108,7 @@ impl RedisServer {
                     addr,
                 }
             }
-            redis::ConnectionAddr::TcpTls { ref host, port, .. } => {
+            lunatic_redis::ConnectionAddr::TcpTls { ref host, port, .. } => {
                 let tls_paths = tls_paths.unwrap_or_else(|| build_keys_and_certs_for_tls(&tempdir));
 
                 // prepare redis with TLS
@@ -127,7 +128,7 @@ impl RedisServer {
                     .arg("--bind")
                     .arg(host);
 
-                let addr = redis::ConnectionAddr::TcpTls {
+                let addr = lunatic_redis::ConnectionAddr::TcpTls {
                     host: host.clone(),
                     port,
                     insecure: true,
@@ -139,7 +140,7 @@ impl RedisServer {
                     addr,
                 }
             }
-            redis::ConnectionAddr::Unix(ref path) => {
+            lunatic_redis::ConnectionAddr::Unix(ref path) => {
                 redis_cmd
                     .arg("--port")
                     .arg("0")
@@ -154,14 +155,14 @@ impl RedisServer {
         }
     }
 
-    pub fn get_client_addr(&self) -> &redis::ConnectionAddr {
+    pub fn get_client_addr(&self) -> &lunatic_redis::ConnectionAddr {
         &self.addr
     }
 
     pub fn stop(&mut self) {
         let _ = self.process.kill();
         let _ = self.process.wait();
-        if let redis::ConnectionAddr::Unix(ref path) = *self.get_client_addr() {
+        if let lunatic_redis::ConnectionAddr::Unix(ref path) = *self.get_client_addr() {
             fs::remove_file(&path).ok();
         }
     }
@@ -175,18 +176,14 @@ impl Drop for RedisServer {
 
 pub struct TestContext {
     pub server: RedisServer,
-    pub client: redis::Client,
+    pub client: lunatic_redis::Client,
 }
 
 impl TestContext {
     pub fn new() -> TestContext {
         let server = RedisServer::new();
 
-        let client = redis::Client::open(redis::ConnectionInfo {
-            addr: server.get_client_addr().clone(),
-            redis: Default::default(),
-        })
-        .unwrap();
+        let client = lunatic_redis::Client::open("redis://127.0.0.1:6379").unwrap();
         let mut con;
 
         let millisecond = Duration::from_millis(1);
@@ -210,22 +207,26 @@ impl TestContext {
                 }
             }
         }
-        redis::cmd("FLUSHDB").execute(&mut con);
+        lunatic_redis::cmd("FLUSHDB").execute(&mut con);
 
         TestContext { server, client }
     }
 
-    pub fn connection(&self) -> redis::Connection {
+    pub fn connection(&self) -> lunatic_redis::Connection {
         self.client.get_connection().unwrap()
     }
 
     #[cfg(feature = "aio")]
-    pub async fn async_connection(&self) -> redis::RedisResult<redis::aio::Connection> {
+    pub async fn async_connection(
+        &self,
+    ) -> lunatic_redis::RedisResult<lunatic_redis::aio::Connection> {
         self.client.get_async_connection().await
     }
 
     #[cfg(feature = "async-std-comp")]
-    pub async fn async_connection_async_std(&self) -> redis::RedisResult<redis::aio::Connection> {
+    pub async fn async_connection_async_std(
+        &self,
+    ) -> lunatic_redis::RedisResult<lunatic_redis::aio::Connection> {
         self.client.get_async_std_connection().await
     }
 

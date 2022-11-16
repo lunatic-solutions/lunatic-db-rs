@@ -58,10 +58,7 @@ impl Stream {
     }
 
     pub fn is_insecure(&self) -> bool {
-        match self {
-            Stream::TcpStream(TcpStream::Insecure(_)) => true,
-            _ => false,
-        }
+        matches!(self, Stream::TcpStream(TcpStream::Insecure(_)))
     }
 
     pub fn is_socket(&self) -> bool {
