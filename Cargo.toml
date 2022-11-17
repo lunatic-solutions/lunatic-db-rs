@@ -22,7 +22,7 @@ redis = ["lunatic-redis"]
 
 [dependencies]
 lunatic-mysql = {version = "0.1.1", optional = true}
-lunatic-redis = {version = "0.1.2", optional = true}
+lunatic-redis = {version = "0.1.3", optional = true}
 
 [workspace]
 members = ["lunatic-mysql", "lunatic-redis"]

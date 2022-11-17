@@ -66,15 +66,6 @@
 //!
 //! The URL format is `redis://[<username>][:<password>@]<hostname>[:port][/<db>]`
 //!
-//! If Unix socket support is available you can use a unix URL in this format:
-//!
-//! `redis+unix:///<path>[?db=<db>[&pass=<password>][&user=<username>]]`
-//!
-//! For compatibility with some other redis libraries, the "unix" scheme
-//! is also supported:
-//!
-//! `unix:///<path>[?db=<db>][&pass=<password>][&user=<username>]]`
-//!
 //! ## Executing Low-Level Commands
 //!
 //! To execute low-level commands you can use the `cmd` function which allows

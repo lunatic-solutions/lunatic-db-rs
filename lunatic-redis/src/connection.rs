@@ -947,8 +947,6 @@ mod tests {
     fn test_parse_redis_url() {
         let cases = vec![
             ("redis://127.0.0.1", true),
-            ("redis+unix:///run/redis.sock", true),
-            ("unix:///run/redis.sock", true),
             ("http://127.0.0.1", false),
             ("tcp://127.0.0.1", false),
         ];

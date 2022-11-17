@@ -3,6 +3,7 @@ use crate::cmd::{cmd, Cmd};
 use crate::types::{
     from_redis_value, ErrorKind, FromRedisValue, HashSet, RedisResult, ToRedisArgs, Value,
 };
+use serde::{Deserialize, Serialize};
 
 pub(crate) const UNROUTABLE_ERROR: (ErrorKind, &str) = (
     ErrorKind::ClientError,
