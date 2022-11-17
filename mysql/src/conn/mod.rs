@@ -860,7 +860,9 @@ impl Conn {
             }
             Params::Named(_) => {
                 if let Some(named_params) = stmt.named_params.as_ref() {
-                    return self._execute(stmt, params.into_positional(named_params)?);
+                    let vecs: Vec<Vec<u8>> =
+                        named_params.iter().map(|p| p.as_bytes().to_vec()).collect();
+                    return self._execute(stmt, params.into_positional(vecs.as_slice())?);
                 } else {
                     return Err(DriverError(NamedParamsForPositionalQuery));
                 }
@@ -1141,9 +1143,19 @@ impl Queryable for Conn {
 
     fn prep<T: AsRef<str>>(&mut self, query: T) -> Result<Statement> {
         let query = query.as_ref();
-        let (named_params, real_query) = parse_named_params(query)?;
-        self._prepare(real_query.borrow())
-            .map(|inner| Statement::new(inner, named_params))
+        let (named_params, real_query) = parse_named_params(query.as_bytes())?;
+        let real_query: &[u8] = real_query.borrow();
+        let real_query = String::from_utf8(real_query.to_vec()).unwrap();
+        self._prepare(real_query.as_str()).map(|inner| {
+            Statement::new(
+                inner,
+                named_params.map(|p| {
+                    p.into_iter()
+                        .map(|v| String::from_utf8(v).unwrap())
+                        .collect()
+                }),
+            )
+        })
     }
 
     fn close(&mut self, stmt: Statement) -> Result<()> {
