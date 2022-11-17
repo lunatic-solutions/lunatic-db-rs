@@ -790,7 +790,7 @@ dependencies = [
  "lunatic",
  "lunatic-db",
  "lunatic-mysql 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "lunatic-redis 0.1.2",
+ "lunatic-redis 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "partial-io",
  "quickcheck",
  "rand",
@@ -859,24 +859,7 @@ dependencies = [
 
 [[package]]
 name = "lunatic-redis"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c27192a1fbc862b7643162686b291db40bf95f1200a1206dc704d59f6885173c"
-dependencies = [
- "combine",
- "itoa 1.0.3",
- "lunatic",
- "paste",
- "percent-encoding",
- "ryu",
- "serde",
- "sha1_smol",
- "url",
-]
-
-[[package]]
-name = "lunatic-redis"
-version = "0.1.4"
+version = "0.1.3"
 dependencies = [
  "ahash",
  "assert_approx_eq",
@@ -894,6 +877,23 @@ dependencies = [
  "serde",
  "sha1_smol",
  "tempfile",
+ "url",
+]
+
+[[package]]
+name = "lunatic-redis"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44c8ddb1a2b73979d33c2f112003c712714371de1e3632cb53c85f21b48e8488"
+dependencies = [
+ "combine",
+ "itoa 1.0.3",
+ "lunatic",
+ "paste",
+ "percent-encoding",
+ "ryu",
+ "serde",
+ "sha1_smol",
  "url",
 ]
 
