@@ -7,7 +7,7 @@ keywords = ["redis", "database", "lunatic", "wasm", "wasi"]
 license = "BSD-3-Clause"
 name = "lunatic-redis"
 repository = "https://github.com/lunatic-solutions/lunatic-db/lunatic-redis"
-version = "0.1.4"
+version = "0.1.3"
 
 [package.metadata.docs.rs]
 all-features = true
