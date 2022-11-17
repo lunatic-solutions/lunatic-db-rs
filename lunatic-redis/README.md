@@ -1,4 +1,4 @@
-# lunatic_redis-rs
+# lunatic_redis
 
 [![Rust](https://github.com/lunatic-solutions/lunatic-db/lunatic-redis/actions/workflows/rust.yml/badge.svg)](https://github.com/lunatic-solutions/lunatic-db/lunatic-redis/actions/workflows/rust.yml)
 [![crates.io](https://img.shields.io/crates/v/redis.svg)](https://crates.io/crates/lunatic_redis)
@@ -21,7 +21,7 @@ lunatic_redis = "0.1.0"
 Documentation on the library can be found at
 [docs.rs/lunatic_redis](https://docs.rs/lunatic_redis).
 
-**Note: lunatic_redis-rs requires at least Lunatic VM 0.12.0 and Rust 1.59.**
+**Note: lunatic_redis requires at least Lunatic VM 0.12.0 and Rust 1.59.**
 
 ## Basic Operation
 
@@ -33,8 +33,8 @@ Many commands are implemented through the `Commands` trait but manual
 command creation is also possible.
 
 ```rust
-extern crate redis;
-use redis::Commands;
+extern crate lunatic_redis;
+use lunatic_redis::{self as redis, Commands};
 
 fn fetch_an_integer() -> redis::RedisResult<isize> {
     // connect to redis
@@ -54,7 +54,7 @@ TlS is enabled by default via the lunatic vm
 so you should be able to connect to a redis instance using the `rediss://` URL scheme:
 
 ```rust
-let client = redis::Client::open("rediss://127.0.0.1/")?;
+let client = lunatic_redis::Client::open("rediss://127.0.0.1/")?;
 ```
 
 ## Cluster Support

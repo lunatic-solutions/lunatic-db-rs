@@ -1,7 +1,5 @@
-[![Gitter](https://badges.gitter.im/rust-mysql/community.svg)](https://gitter.im/rust-mysql/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-
+[![Chat](https://img.shields.io/discord/976380008299917365?logo=discord)](https://discord.gg/UNNeswQS)
 [![Crates.io](https://img.shields.io/crates/v/mysql.svg)](https://crates.io/crates/mysql)
-[![Build Status](https://dev.azure.com/aikorsky/mysql%20Rust/_apis/build/status/blackbeam%2Erust%2Dmysql%2Dsimple)](https://dev.azure.com/aikorsky/mysql%20Rust/_build/latest?definitionId=1)
 
 # mysql
 
@@ -108,11 +106,6 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
 ### Crate Features
 
 * crate's features:
-
-    *   **native-tls** (enabled by default) – specifies `native-tls` as the TLS backend
-        (see the [SSL Support](#ssl-support) section)
-    *   **rustls-tls** (disabled by default) – specifies `rustls` as the TLS backend
-        (see the [SSL Support](#ssl-support) section)
     *   **buffer-pool** (enabled by default) – enables buffer pooling
         (see the [Buffer Pool](#buffer-pool) section)
 

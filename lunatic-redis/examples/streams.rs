@@ -65,7 +65,7 @@ fn demo_group_reads(client: &redis::Client) {
     // example is a contrived scenario so that each consumer
     // receives its own, specific chunk of data.
     //
-    // Once the data is read, the redis-rs lib will automatically
+    // Once the data is read, the lunatic_redis lib will automatically
     // acknowledge its receipt via XACK.
     //
     // Read more about reading with consumer groups here:

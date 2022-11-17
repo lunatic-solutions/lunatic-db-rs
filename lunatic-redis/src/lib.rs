@@ -1,4 +1,4 @@
-//! redis-rs is a rust implementation of a Redis client library.  It exposes
+//! lunatic_redis is a rust implementation of a Redis client library.  It exposes
 //! a general purpose interface to Redis and also provides specific helpers for
 //! commonly used functionality.
 //!
@@ -13,12 +13,12 @@
 //!
 //! ```ini
 //! [dependencies.redis]
-//! git = "https://github.com/redis-rs/redis-rs.git"
+//! git = "https://github.com/lunatic-solutions/lunatic-db/lunatic-redis.git"
 //! ```
 //!
 //! # Basic Operation
 //!
-//! redis-rs exposes two API levels: a low- and a high-level part.
+//! lunatic_redis exposes two API levels: a low- and a high-level part.
 //! The high-level part does not expose all the functionality of redis and
 //! might take some liberties in how it speaks the protocol.  The low-level
 //! part of the API allows you to express any request on the redis level.
@@ -64,7 +64,7 @@
 //!
 //! ## Connection Parameters
 //!
-//! redis-rs knows different ways to define where a connection should
+//! lunatic_redis knows different ways to define where a connection should
 //! go.  The parameter to `Client::open` needs to implement the
 //! `IntoConnectionInfo` trait of which there are three implementations:
 //!

@@ -2,7 +2,7 @@ use lunatic::{self, Mailbox};
 use lunatic_redis::{Commands, Iter};
 
 #[lunatic::main]
-async fn main(_: Mailbox<()>) {
+fn main(_: Mailbox<()>) {
     let client = lunatic_redis::Client::open("redis://127.0.0.1/").unwrap();
     let mut con = client.get_connection().unwrap();
 

@@ -519,7 +519,7 @@ fn setup_connection(
 }
 
 /// Implements the "stateless" part of the connection interface that is used by the
-/// different objects in redis-rs.  Primarily it obviously applies to `Connection`
+/// different objects in lunatic_redis.  Primarily it obviously applies to `Connection`
 /// object but also some other objects implement the interface (for instance
 /// whole clients or certain redis results).
 ///
@@ -635,7 +635,7 @@ impl Connection {
         self.con.set_read_timeout(dur)
     }
 
-    /// Creates a [`PubSub`] instance for this connection.
+    /// Creates a [`RedisPubSub`] instance for this connection.
     /// this moves the connection so that there's no accidental usage of the connection
     /// besides via the subscription interface
     pub fn as_pubsub(self) -> RedisPubSub {
@@ -704,7 +704,6 @@ impl ConnectionLike for Connection {
             // When processing a transaction, some responses may be errors.
             // We need to keep processing the rest of the responses in that case,
             // so bailing early with `?` would not be correct.
-            // See: https://github.com/redis-rs/redis-rs/issues/436
             let response = self.read_response(None as Option<&mut TcpStream>);
             match response {
                 Ok(item) => {

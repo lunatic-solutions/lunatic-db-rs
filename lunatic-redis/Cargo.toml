@@ -8,11 +8,11 @@ license = "BSD-3-Clause"
 name = "lunatic-redis"
 repository = "https://github.com/lunatic-solutions/lunatic-db/lunatic-redis"
 rust-version = "1.57"
-version = "0.1.0"
+version = "0.1.1"
 
 [package.metadata.docs.rs]
 all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
+# rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
 # These two are generally really common simple dependencies so it does not seem
@@ -46,11 +46,6 @@ r2d2 = {version = "0.8.8", optional = true}
 crc16 = {version = "0.4", optional = true}
 rand = {version = "0.8", optional = true}
 
-# Only needed for TLS
-async-native-tls = {version = "0.4", optional = true}
-native-tls = {version = "0.2", optional = true}
-tokio-native-tls = {version = "0.3", optional = true}
-
 paste = "1.0"
 
 # Optional aHash support
@@ -64,7 +59,6 @@ default = ["acl", "streams", "geospatial", "script"]
 geospatial = []
 script = ["sha1_smol"]
 streams = []
-tls = ["native-tls"]
 
 [dev-dependencies]
 assert_approx_eq = "1.0"
@@ -75,28 +69,4 @@ lunatic-db = {path = "../"}
 quickcheck = "1.0.3"
 rand = "0.8"
 serde = {version = "1.0.132", features = ["derive"]}
-socket2 = "0.4"
 tempfile = "3.2"
-
-# [[example]]
-# name = "async-multiplexed"
-# required-features = ["tokio-comp"]
-
-# [[example]]
-# name = "async-await"
-# required-features = []
-
-# [[example]]
-# name = "async-pub-sub"
-# required-features = []
-
-# [[example]]
-# name = "async-scan"
-
-# [[example]]
-# name = "async-connection-loss"
-# required-features = ["connection-manager"]
-
-# [[example]]
-# name = "streams"
-# required-features = ["streams"]

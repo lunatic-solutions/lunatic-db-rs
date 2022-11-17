@@ -62,9 +62,7 @@ impl RedisServer {
                 }
             }
             ServerType::Unix => {
-                let (a, b) = rand::random::<(u64, u64)>();
-                let path = format!("/tmp/redis-rs-test-{}-{}.sock", a, b);
-                lunatic_redis::ConnectionAddr::Unix(PathBuf::from(&path))
+                unimplemented!()
             }
         };
         RedisServer::new_with_addr(addr, None, |cmd| {
@@ -206,20 +204,6 @@ impl TestContext {
 
     pub fn connection(&self) -> lunatic_redis::Connection {
         self.client.get_connection().unwrap()
-    }
-
-    #[cfg(feature = "aio")]
-    pub async fn async_connection(
-        &self,
-    ) -> lunatic_redis::RedisResult<lunatic_redis::aio::Connection> {
-        self.client.get_async_connection().await
-    }
-
-    #[cfg(feature = "async-std-comp")]
-    pub async fn async_connection_async_std(
-        &self,
-    ) -> lunatic_redis::RedisResult<lunatic_redis::aio::Connection> {
-        self.client.get_async_std_connection().await
     }
 
     pub fn stop_server(&mut self) {
