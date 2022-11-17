@@ -2,11 +2,11 @@
 categories = ["database-driver"]
 description = "A collection of db drivers for the lunatic runtime"
 edition = "2021"
-keywords = ["database", "db", "mysql", "postgres", "redis"]
+keywords = ["database", "db", "mysql", "redis", "lunatic"]
 license = "Apache-2.0/MIT"
 name = "lunatic-db"
 readme = "Readme.md"
-repository = "https://github.com/lunatic-solutions/submillisecond"
+repository = "https://github.com/lunatic-solutions/lunatic-db"
 version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -667,7 +667,7 @@ impl Connection {
                         // let _ = connection.reader.shutdown(net::Shutdown::Both);
                         // connection.reader.connection.open = false;
                     }
-                    ActualConnection::TcpTls(ref mut connection) => {
+                    ActualConnection::TcpTls(ref mut _connection) => {
                         // let _ = connection.reader.shutdown();
                         // connection.open = false;
                     }

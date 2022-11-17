@@ -948,7 +948,7 @@ dependencies = [
 
 [[package]]
 name = "lunatic-redis"
-version = "0.21.5"
+version = "0.1.0"
 dependencies = [
  "ahash",
  "arc-swap",
@@ -1034,7 +1034,7 @@ dependencies = [
 
 [[package]]
 name = "mysql"
-version = "22.2.0"
+version = "0.1.0"
 dependencies = [
  "bufstream",
  "bytes",

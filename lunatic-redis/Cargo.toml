@@ -1,14 +1,14 @@
 [package]
 description = "Redis driver for the lunatic runtime."
-documentation = "https://docs.rs/redis"
+documentation = "https://docs.rs/lunatic-db/redis"
 edition = "2018"
 homepage = "https://github.com/lunatic/lunatic-db/lunatic-redis"
-keywords = ["redis", "database"]
+keywords = ["redis", "database", "lunatic", "wasm", "wasi"]
 license = "BSD-3-Clause"
 name = "lunatic-redis"
-repository = "https://github.com/lunatic/lunatic-db/lunatic-redis"
+repository = "https://github.com/lunatic-solutions/lunatic-db/lunatic-redis"
 rust-version = "1.57"
-version = "0.21.5"
+version = "0.1.0"
 
 [package.metadata.docs.rs]
 all-features = true

@@ -17,7 +17,7 @@ pub struct MyTcpBuilder<T> {
     read_timeout: Option<Duration>,
     write_timeout: Option<Duration>,
     keepalive_time_ms: Option<u32>,
-    nodelay: bool,
+    // nodelay: bool,
 }
 
 impl<T: ToSocketAddrs> MyTcpBuilder<T> {
@@ -62,7 +62,7 @@ impl<T: ToSocketAddrs> MyTcpBuilder<T> {
             read_timeout: None,
             write_timeout: None,
             keepalive_time_ms: None,
-            nodelay: true,
+            // nodelay: true,
         }
     }
 
@@ -70,11 +70,7 @@ impl<T: ToSocketAddrs> MyTcpBuilder<T> {
         let MyTcpBuilder {
             address,
             bind_address,
-            connect_timeout,
-            read_timeout,
-            write_timeout,
-            keepalive_time_ms,
-            nodelay,
+            ..
         } = self;
         let err_msg = if bind_address.is_none() {
             "could not connect to any address"
@@ -86,7 +82,7 @@ impl<T: ToSocketAddrs> MyTcpBuilder<T> {
         let addrs = address.to_socket_addrs()?.collect::<Vec<_>>();
 
         let socket = if let Some(bind_address) = bind_address {
-            let fold_fun = |prev, sock_addr: &SocketAddr| match prev {
+            let fold_fun = |prev, _sock_addr: &SocketAddr| match prev {
                 Ok(socket) => Ok(socket),
                 Err(_) => Ok(TcpStream::connect(bind_address).unwrap()),
             };
