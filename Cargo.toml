@@ -11,9 +11,14 @@ version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["mysql", "redis"]
+mysql = ["lunatic-mysql"]
+redis = ["lunatic-redis"]
+
 [dependencies]
-lunatic-mysql = {path = "lunatic-mysql"}
-lunatic-redis = {path = "lunatic-redis"}
+lunatic-mysql = {version = "0.1.0", optional = true}
+lunatic-redis = {version = "0.1.0", optional = true}
 
 [workspace]
 members = ["lunatic-mysql", "lunatic-redis"]

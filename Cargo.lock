@@ -899,8 +899,8 @@ dependencies = [
  "fnv",
  "lunatic",
  "lunatic-db",
- "lunatic-mysql",
- "lunatic-redis",
+ "lunatic-mysql 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lunatic-redis 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "partial-io",
  "quickcheck",
  "rand",
@@ -946,6 +946,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "lunatic-mysql"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "67cd82c5249c1b6fca2cf34c29eb539b388345ae0ce3cc932fe8bf25665fae84"
+dependencies = [
+ "bufstream",
+ "bytes",
+ "crossbeam",
+ "flate2",
+ "io-enum",
+ "lru",
+ "lunatic",
+ "mysql_common",
+ "once_cell",
+ "percent-encoding",
+ "serde",
+ "serde_json",
+ "twox-hash",
+ "url",
+]
+
+[[package]]
 name = "lunatic-redis"
 version = "0.1.0"
 dependencies = [
@@ -972,6 +994,23 @@ dependencies = [
  "socket2",
  "tempfile",
  "tokio-native-tls",
+ "url",
+]
+
+[[package]]
+name = "lunatic-redis"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22184fa00db38434224aae5e34f607d3ccc51d43e7024cec5d258d7ff080eda4"
+dependencies = [
+ "combine",
+ "itoa 1.0.3",
+ "lunatic",
+ "paste",
+ "percent-encoding",
+ "ryu",
+ "serde",
+ "sha1_smol",
  "url",
 ]
 
