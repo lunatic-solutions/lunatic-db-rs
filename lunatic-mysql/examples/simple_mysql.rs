@@ -1,7 +1,7 @@
 use lunatic::{self, spawn_link, Mailbox};
-use lunatic_db::mysql::prelude::*;
-use lunatic_db::mysql::serde::{Deserialize, Serialize};
-use lunatic_db::mysql::*;
+use lunatic_mysql::prelude::*;
+use lunatic_mysql::serde::{Deserialize, Serialize};
+use lunatic_mysql::*;
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 struct Payment {

@@ -13,7 +13,7 @@ repository = "https://github.com/lunatic-solutions/lunatic-db/mysql"
 version = "0.1.0"
 
 [lib]
-name = "mysql"
+name = "lunatic_mysql"
 path = "src/lib.rs"
 
 [features]
