@@ -3,12 +3,12 @@ authors = ["lunatic-solutions"]
 build = "build.rs"
 categories = ["database"]
 description = "Mysql client library implemented in rust"
-documentation = "https://docs.rs/lunatic-db/mysql"
+documentation = "https://docs.rs/lunatic-mysql"
 edition = "2021"
 exclude = ["tests/*", ".*", "Makefile"]
 keywords = ["database", "sql"]
 license = "MIT/Apache-2.0"
-name = "mysql"
+name = "lunatic-mysql"
 repository = "https://github.com/lunatic-solutions/lunatic-db/mysql"
 version = "0.1.0"
 
