@@ -1,11 +1,12 @@
 use crate::{cmd::cmd, connection::Confirmation};
 use lunatic::{abstract_process, net::TcpStream, process::ProcessRef};
+use serde::{Deserialize, Serialize};
 
 use crate::{from_redis_value, Connection, ErrorKind, Msg, RedisError, RedisResult, ToRedisArgs};
 
 /// RedisPubSub allows one to use a connection for pub-sub to publish or subscribe to certain
 /// topics and/or patterns.
-// #[derive(Clone)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct RedisPubSub {
     connection: Connection,
     // are used for restarting connection if redis server resets connection

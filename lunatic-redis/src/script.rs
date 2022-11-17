@@ -1,4 +1,5 @@
 #![cfg(feature = "script")]
+use serde::{Deserialize, Serialize};
 use sha1_smol::Sha1;
 
 use crate::cmd::cmd;
@@ -7,7 +8,7 @@ use crate::types::{ErrorKind, FromRedisValue, RedisResult, ToRedisArgs};
 use crate::Cmd;
 
 /// Represents a lua script.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Script {
     code: String,
     hash: String,

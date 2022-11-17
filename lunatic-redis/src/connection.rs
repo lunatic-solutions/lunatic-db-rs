@@ -299,11 +299,6 @@ impl StrippedConnection {
     }
 }
 
-/// Represents a pubsub connection.
-// pub struct PubSub<'a> {
-//     con: &'a mut Connection,
-// }
-
 /// Represents a pubsub message.
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Msg {

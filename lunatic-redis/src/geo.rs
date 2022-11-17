@@ -1,5 +1,7 @@
 //! Defines types to use with the geospatial commands.
 
+use serde::{Deserialize, Serialize};
+
 use super::{ErrorKind, RedisResult};
 use crate::types::{FromRedisValue, RedisWrite, ToRedisArgs, Value};
 
@@ -17,6 +19,7 @@ macro_rules! invalid_type_error {
 ///
 /// [1]: ../trait.Commands.html#method.geo_dist
 /// [2]: ../trait.Commands.html#method.geo_radius
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum Unit {
     /// Represents meters.
     Meters,
@@ -52,7 +55,7 @@ impl ToRedisArgs for Unit {
 ///
 /// * You may want to use either `f64` or `f32` if you want to perform mathematical operations.
 /// * To keep the raw value from Redis, use `String`.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone)]
 pub struct Coord<T> {
     /// Longitude
     pub longitude: T,
@@ -103,6 +106,7 @@ impl<T: ToRedisArgs> ToRedisArgs for Coord<T> {
 ///
 /// [1]: https://redis.io/commands/georadius
 /// [2]: https://redis.io/commands/georadiusbymember
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum RadiusOrder {
     /// Don't sort the results
     Unsorted,
@@ -144,7 +148,7 @@ impl Default for RadiusOrder {
 ///     con.geo_radius(key, longitude, latitude, meters, Unit::Meters, opts)
 /// }
 /// ```
-#[derive(Default)]
+#[derive(Default, Clone, Deserialize, Serialize)]
 pub struct RadiusOptions {
     with_coord: bool,
     with_dist: bool,
@@ -245,6 +249,7 @@ impl ToRedisArgs for RadiusOptions {
 ///
 /// [1]: ../trait.Commands.html#method.geo_radius
 /// [2]: ../trait.Commands.html#method.geo_radius_by_member
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RadiusSearchResult {
     /// The name that was found.
     pub name: String,

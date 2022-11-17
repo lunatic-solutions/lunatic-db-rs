@@ -10,11 +10,16 @@ keywords = ["database", "sql"]
 license = "MIT/Apache-2.0"
 name = "lunatic-mysql"
 repository = "https://github.com/lunatic-solutions/lunatic-db/mysql"
-version = "0.1.0"
+version = "0.1.1"
 
 [lib]
 name = "lunatic_mysql"
 path = "src/lib.rs"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+targets = ["wasm32-wasi"]
 
 [features]
 buffer-pool = []

@@ -1,11 +1,13 @@
 use std::{fmt, io};
 
+use serde::{Deserialize, Serialize};
+
 use crate::connection::ConnectionLike;
 use crate::pipeline::Pipeline;
 use crate::types::{from_redis_value, FromRedisValue, RedisResult, RedisWrite, ToRedisArgs};
 
 /// An argument to a redis command
-#[derive(Clone)]
+#[derive(Clone, Deserialize, Serialize)]
 pub enum Arg<D> {
     /// A normal argument
     Simple(D),
@@ -14,7 +16,7 @@ pub enum Arg<D> {
 }
 
 /// Represents redis commands.
-#[derive(Clone)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Cmd {
     data: Vec<u8>,
     // Arg::Simple contains the offset that marks the end of the argument

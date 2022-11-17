@@ -1,5 +1,7 @@
 #![macro_use]
 
+use serde::{Deserialize, Serialize};
+
 use crate::cmd::{cmd, cmd_len, Cmd};
 use crate::connection::ConnectionLike;
 use crate::types::{
@@ -7,7 +9,7 @@ use crate::types::{
 };
 
 /// Represents a redis command pipeline.
-#[derive(Clone)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Pipeline {
     commands: Vec<Cmd>,
     transaction_mode: bool,

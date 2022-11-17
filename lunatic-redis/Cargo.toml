@@ -8,11 +8,12 @@ license = "BSD-3-Clause"
 name = "lunatic-redis"
 repository = "https://github.com/lunatic-solutions/lunatic-db/lunatic-redis"
 rust-version = "1.57"
-version = "0.1.1"
+version = "0.1.2"
 
 [package.metadata.docs.rs]
 all-features = true
-# rustdoc-args = ["--cfg", "docsrs"]
+rustdoc-args = ["--cfg", "docsrs"]
+targets = ["wasm32-wasi"]
 
 [dependencies]
 # These two are generally really common simple dependencies so it does not seem

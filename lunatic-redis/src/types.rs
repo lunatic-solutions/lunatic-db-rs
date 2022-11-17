@@ -30,6 +30,7 @@ macro_rules! invalid_type_error_inner {
 }
 
 /// Helper enum that is used to define expiry time
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum Expiry {
     /// EX seconds -- Set the specified expire time, in seconds.
     EX(usize),
@@ -45,7 +46,7 @@ pub enum Expiry {
 
 /// Helper enum that is used in some situations to describe
 /// the behavior of arguments in a numeric context.
-#[derive(PartialEq, Eq, Clone, Debug, Copy)]
+#[derive(PartialEq, Eq, Clone, Debug, Copy, Deserialize, Serialize)]
 pub enum NumericBehavior {
     /// This argument is not numeric.
     NonNumeric,
@@ -838,7 +839,7 @@ pub fn make_extension_error(code: &str, detail: Option<&str>) -> RedisError {
 pub type RedisResult<T> = Result<T, RedisError>;
 
 /// An info dictionary type.
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct InfoDict {
     map: HashMap<String, Value>,
 }

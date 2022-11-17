@@ -1,5 +1,7 @@
 // can't use rustfmt here because it screws up the file.
 #![cfg_attr(rustfmt, rustfmt_skip)]
+use serde::{Serialize, Deserialize};
+
 use crate::cmd::{cmd, Cmd, Iter};
 use crate::connection::{ConnectionLike, Msg};
 use crate::pipeline::Pipeline;
@@ -1842,6 +1844,7 @@ implement_commands! {
 /// Allows pubsub callbacks to stop receiving messages.
 ///
 /// Arbitrary data may be returned from `Break`.
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum ControlFlow<U> {
     /// Continues.
     Continue,
@@ -1966,7 +1969,7 @@ impl<T> Commands for T where T: ConnectionLike {}
 ///     con.lpos(key, value, opts)
 /// }
 /// ```
-#[derive(Default)]
+#[derive(Default, Clone, Deserialize, Serialize)]
 pub struct LposOptions {
     count: Option<usize>,
     maxlen: Option<usize>,
@@ -2020,6 +2023,7 @@ impl ToRedisArgs for LposOptions {
 }
 
 /// Enum for the LEFT | RIGHT args used by some commands
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum Direction {
     /// Targets the first element (head) of the list
     Left,

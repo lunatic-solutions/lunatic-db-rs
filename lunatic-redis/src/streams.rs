@@ -1,5 +1,7 @@
 //! Defines types to use with the streams commands.
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     from_redis_value, types::HashMap, FromRedisValue, RedisResult, RedisWrite, ToRedisArgs, Value,
 };
@@ -11,7 +13,7 @@ use std::io::{Error, ErrorKind};
 /// Utility enum for passing `MAXLEN [= or ~] [COUNT]`
 /// arguments into `StreamCommands`.
 /// The enum value represents the count.
-#[derive(PartialEq, Eq, Clone, Debug, Copy)]
+#[derive(PartialEq, Eq, Clone, Debug, Copy, Deserialize, Serialize)]
 pub enum StreamMaxlen {
     /// Match an exact count
     Equals(usize),
@@ -38,7 +40,7 @@ impl ToRedisArgs for StreamMaxlen {
 ///
 /// [`xclaim_options`]: ../trait.Commands.html#method.xclaim_options
 ///
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 pub struct StreamClaimOptions {
     /// Set IDLE <milliseconds> cmd arg.
     idle: Option<usize>,
@@ -120,7 +122,7 @@ type SRGroup = Option<(Vec<Vec<u8>>, Vec<Vec<u8>>)>;
 ///
 /// [`xread_options`]: ../trait.Commands.html#method.xread_options
 ///
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 pub struct StreamReadOptions {
     /// Set the BLOCK <milliseconds> cmd arg.
     block: Option<usize>,
@@ -211,7 +213,7 @@ impl ToRedisArgs for StreamReadOptions {
 /// [`xread`]: ../trait.Commands.html#method.xread
 /// [`xread_options`]: ../trait.Commands.html#method.xread_options
 ///
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamReadReply {
     /// Complex data structure containing a payload for each key in this array
     pub keys: Vec<StreamKey>,
@@ -228,7 +230,7 @@ pub struct StreamReadReply {
 /// [`xrevrange_count`]: ../trait.Commands.html#method.xrevrange_count
 /// [`xrevrange_all`]: ../trait.Commands.html#method.xrevrange_all
 ///
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamRangeReply {
     /// Complex data structure containing a payload for each ID in this array
     pub ids: Vec<StreamId>,
@@ -240,7 +242,7 @@ pub struct StreamRangeReply {
 ///
 /// [`xclaim`]: ../trait.Commands.html#method.xclaim
 ///
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamClaimReply {
     /// Complex data structure containing a payload for each ID in this array
     pub ids: Vec<StreamId>,
@@ -253,7 +255,7 @@ pub struct StreamClaimReply {
 ///
 /// [`xpending`]: ../trait.Commands.html#method.xpending
 ///
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum StreamPendingReply {
     /// The stream is empty.
     Empty,
@@ -280,7 +282,7 @@ impl StreamPendingReply {
 /// Inner reply type when an [`xpending`] command has data.
 ///
 /// [`xpending`]: ../trait.Commands.html#method.xpending
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamPendingData {
     /// Limit on the number of messages to return per call.
     pub count: usize,
@@ -303,7 +305,7 @@ pub struct StreamPendingData {
 /// [`xpending_count`]: ../trait.Commands.html#method.xpending_count
 /// [`xpending_consumer_count`]: ../trait.Commands.html#method.xpending_consumer_count
 ///
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamPendingCountReply {
     /// An array of structs containing information about
     /// message IDs yet to be acknowledged by various consumers,
@@ -319,7 +321,7 @@ pub struct StreamPendingCountReply {
 ///
 /// [`xinfo_stream`]: ../trait.Commands.html#method.xinfo_stream
 ///
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamInfoStreamReply {
     /// The last generated ID that may not be the same as the last
     /// entry ID in case some entry was deleted.
@@ -342,7 +344,7 @@ pub struct StreamInfoStreamReply {
 ///
 /// [`xinfo_consumer`]: ../trait.Commands.html#method.xinfo_consumer
 ///
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamInfoConsumersReply {
     /// An array of every consumer in a specific consumer group.
     pub consumers: Vec<StreamInfoConsumer>,
@@ -355,7 +357,7 @@ pub struct StreamInfoConsumersReply {
 ///
 /// [`xinfo_groups`]: ../trait.Commands.html#method.xinfo_groups
 ///
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamInfoGroupsReply {
     /// All the consumer groups associated with the stream.
     pub groups: Vec<StreamInfoGroup>,
@@ -365,7 +367,7 @@ pub struct StreamInfoGroupsReply {
 ///
 /// [`xinfo_consumers`]: ../trait.Commands.html#method.xinfo_consumers
 ///
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamInfoConsumer {
     /// Name of the consumer group.
     pub name: String,
@@ -379,7 +381,7 @@ pub struct StreamInfoConsumer {
 ///
 /// [`xinfo_groups`]: ../trait.Commands.html#method.xinfo_groups
 ///
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamInfoGroup {
     /// The group name.
     pub name: String,
@@ -394,7 +396,7 @@ pub struct StreamInfoGroup {
 /// Represents a pending message parsed from [`xpending`] methods.
 ///
 /// [`xpending`]: ../trait.Commands.html#method.xpending
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamPendingId {
     /// The ID of the message.
     pub id: String,
@@ -410,7 +412,7 @@ pub struct StreamPendingId {
 }
 
 /// Represents a stream `key` and its `id`'s parsed from `xread` methods.
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamKey {
     /// The stream `key`.
     pub key: String,
@@ -419,7 +421,7 @@ pub struct StreamKey {
 }
 
 /// Represents a stream `id` and its field/values as a `HashMap`
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct StreamId {
     /// The stream `id` (entry ID) of this particular message.
     pub id: String,

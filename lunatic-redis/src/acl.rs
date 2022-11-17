@@ -1,5 +1,7 @@
 //! Defines types to use with the ACL commands.
 
+use serde::{Deserialize, Serialize};
+
 use crate::types::{
     ErrorKind, FromRedisValue, RedisError, RedisResult, RedisWrite, ToRedisArgs, Value,
 };
@@ -16,7 +18,7 @@ macro_rules! not_convertible_error {
 
 /// ACL rules are used in order to activate or remove a flag, or to perform a
 /// given change to the user ACL, which under the hood are just single words.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum Rule {
     /// Enable the user: it is possible to authenticate as this user.
     On,
@@ -103,7 +105,7 @@ impl ToRedisArgs for Rule {
 /// This type collects key/value data returned by the [`ACL GETUSER`][1] command.
 ///
 /// [1]: https://redis.io/commands/acl-getuser
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct AclInfo {
     /// Describes flag rules for the user. Represented by [`Rule::On`][1],
     /// [`Rule::Off`][2], [`Rule::AllKeys`][3], [`Rule::AllCommands`][4] and

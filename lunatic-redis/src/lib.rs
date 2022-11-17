@@ -2,10 +2,10 @@
 //! a general purpose interface to Redis and also provides specific helpers for
 //! commonly used functionality.
 //!
-//! The crate is called `redis` and you can depend on it via cargo:
+//! The crate is called `lunatic_redis` and you can depend on it via cargo:
 //!
 //! ```ini
-//! [dependencies.redis]
+//! [dependencies.lunatic_redis]
 //! version = "*"
 //! ```
 //!
@@ -52,15 +52,7 @@
 //! There are a few features defined that can enable additional functionality
 //! if so desired.  Some of them are turned on by default.
 //!
-//! * `acl`: enables acl support (enabled by default)
-//! * `aio`: enables async IO support (enabled by default)
 //! * `geospatial`: enables geospatial support (enabled by default)
-//! * `script`: enables script support (enabled by default)
-//! * `r2d2`: enables r2d2 connection pool support (optional)
-//! * `ahash`: enables ahash map/set support & uses ahash internally (+7-10% performance) (optional)
-//! * `cluster`: enables redis cluster support (optional)
-//! * `tokio-comp`: enables support for tokio (optional)
-//! * `connection-manager`: enables support for automatic reconnection (optional)
 //!
 //! ## Connection Parameters
 //!
@@ -334,16 +326,15 @@ use redis::AsyncCommands;
 # #[tokio::main]
 # async fn main() -> redis::RedisResult<()> {
 let client = redis::Client::open("redis://127.0.0.1/").unwrap();
-let mut con = client.get_async_connection().await?;
+let mut con = client.get_async_connection()?;
 
-con.set("key1", b"foo").await?;
+con.set("key1", b"foo")?;
 
-redis::cmd("SET").arg(&["key2", "bar"]).query_async(&mut con).await?;
+redis::cmd("SET").arg(&["key2", "bar"]).query_async(&mut con)?;
 
 let result = redis::cmd("MGET")
  .arg(&["key1", "key2"])
- .query_async(&mut con)
- .await;
+ .query_async(&mut con);
 assert_eq!(result, Ok(("foo".to_string(), b"bar".to_vec())));
 # Ok(()) }
 ```
